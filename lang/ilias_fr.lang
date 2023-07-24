@@ -1,0 +1,76 @@
+// 
+// French Language File for Atrium Object Plugin
+//
+
+<!-- language file start -->
+obj_xatr#:#CBT
+objs_xatr#:#CBTs
+obj_xatr_duplicate#:#Copier le CBT
+objs_xatr_duplicate#:#Copier les CBTs
+obj_xatr_select#:#Selectionner CBT
+xatr_add#:#Ajouter un CBT
+xatr_new#:#Nouveau CBT
+xatr_read#:#Accès en lecture du CBT
+xatr_write#:#Modification du CBT
+xatr_delete#:#Supprimer un CBT
+xatr_visible#:#Le CBT is visible
+xatr_edit_permission#:#Modifier les permissions
+crs_create_xatr#:#Creer un CBT
+grp_create_xatr#:#Creer un CBT
+fold_create_xatr#:#Creer un CBT
+root_create_xatr#:#Creer un CBT
+cat_create_xatr#:#Creer un CBT
+content#:#Transmettre les données
+properties#:#Paramètres
+edit_properties#:#Modifier les paramètres
+title#:#Titre
+description#:#Description
+save#:#Sauvegarder
+cancel#:#Annuler
+edit#:#Modifier
+status#:#Statut
+offline#:#Hors ligne
+atrium_plugin_configuration#:#Configuration du plug-in CBT
+cbt_id#:#Code session
+cbt_key#:#Clé de décryptage
+saving_invoked#:#La procédure de sauvegarde a été executée. Noter que dans cet exemple, aucune donnée n'est écrite dans la base de données.
+please_insert_cd_rom#:#Vous pouvez maintenant utiliser le CD-Rom ATRIUM. Pour transmettre vos données, ouvrir votre fichier de données (*.mpj) à l'aide du bouton "Parcourir", puis cliquer sur "Transmettre".
+upload_learning_progress_file#:#Transmettre un fichier de données
+learning_progress_file#:#Fichier
+upload#:#Transmettre
+no_file_given#:#Aucun fichier de données n'a été trouvé.
+lp_users#:#Suivi des apprenants
+lp_matrix#:#Vue Matrice
+lp_summary#:#Sommaire
+average#:#Moyenne
+discipline#:#Matière
+details#:#Détails
+pre_test#:#Pré-Test
+final_test#:#Evaluation Finale
+date#:#Date
+points#:#Note
+tries#:#Nb Essais
+module#:#Module
+cbt_id_does_not_match#:#Le code session du fichier de données ne correspond pas avec celui du CBT.
+matriculation_does_not_match#:#Le matricule dans le fichier de données ne correspond pas avec celui de l'utilisateur courant.
+no_matriculation_given#:#Absence de numéro de matricule.
+no_user_found_for_matriculation#:#Il n'y a pas d'utilisateur enregistré avec ce numéro de matricule
+multiple_user_found_for_matriculation#:#Il y a plusieurs utilisateurs avec ce numéro de matricule
+disc_mat_names_file#:#Fichier de correspondance des noms de matières et modules
+disc_mat_names_file_desc#:#Les lignes doivent être séparées par un retour ligne \n, les champs doivent être séparés par un ";", le fichier doit être encodé en UTF-8.
+names#:#Définition du parcours
+key#:#Identifiant
+value#:#Valeur
+could_not_decode_file_content#:#Impossible de décoder le fichier transmit
+export_excel#:#Exporter une feuille de note
+general_information#:#Informations générales
+general_average#:#Moyenne générale
+modules#:#Modules
+nb_discipline_connexions#:#Nb d'accès matière
+LP_STATUS_IN_PROGRESS#:#En cours
+total_time#:#Temps total de travail (hh:mm:ss)
+total_conn#:#Nb total de connexions
+val_percentage#:#Pourcentage de modules validés
+first_access#:#Début de la préparation
+test_status#:#Statut du test
+

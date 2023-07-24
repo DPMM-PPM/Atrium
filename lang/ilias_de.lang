@@ -1,0 +1,9 @@
+<!-- language file start -->
+plugin_configuration#:#Google Analytics Konfiguration
+warning_no_account_id#:#Eine gültige Google Analytics ID ist erforderlich um dieses Plugin zu benutzen.
+account_id#:#Account ID
+account_id_info#:#Die Google Analytics ID um Seitenaufrufe zu verfolgen (z.B. 'UA-XXXXXXX-YY').
+anonymize_ip#:#IP-Adresse anonymisieren
+anonymize_ip_info#:#Teilt Google Analytics mit, dass die gesendeten Informationen anonymisiert werden sollen, indem das letzte Oktet der IP-Adresse entfernt wird. Dies reduziert die Genauigkeit des ortsbezogenen Reportings ein wenig.
+track_downloads#:#Downloads verfolgen
+track_downloads_info#:#Wenn aktiviert werden Downloads als Ereignisse verfolgt. Ansonsten werden Downloads nicht aufgezeichnet.

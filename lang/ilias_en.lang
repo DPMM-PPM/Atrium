@@ -1,0 +1,71 @@
+// 
+// English Language File for Atrium Object Plugin
+//
+
+<!-- language file start -->
+obj_xatr#:#CBT
+objs_xatr#:#CBTs
+obj_xatr_duplicate#:#Copy
+objs_xatr_duplicate#:#Copy CBT
+obj_xatr_select#:#Select CBT
+xatr_add#:#Add CBT
+xatr_new#:#New CBT
+xatr_read#:#Read access to CBT
+xatr_write#:#Edit CBT
+xatr_delete#:#Delete CBT
+xatr_visible#:#CBT is visible
+xatr_edit_permission#:#Change permission settings
+crs_create_xatr#:#CBT Plugin
+grp_create_xatr#:#CBT Plugin
+fold_create_xatr#:#CBT Plugin
+root_create_xatr#:#CBT Plugin
+cat_create_xatr#:#CBT Plugin
+content#:#Content
+properties#:#Settings
+edit_properties#:#Edit Settings
+title#:#Title
+description#:#Description
+save#:#Save
+cancel#:#Cancel
+edit#:#Edit
+status#:#Status
+offline#:#Offline
+atrium_plugin_configuration#:#CBT Configuration
+cbt_id#:#CBT ID
+cbt_key#:#Secret Key
+saving_invoked#:#Save procedure has been executed. Please note that this example does not save anything to DB.
+please_insert_cd_rom#:#Please insert the CD-ROM and work through the learning content. After finishing, save the learning progress file and upload it here.
+upload_learning_progress_file#:#Upload Learning Progress File
+learning_progress_file#:#File
+upload#:#Upload
+no_file_given#:#No upload file found.
+lp_users#:#Users
+lp_matrix#:#Matrix View
+lp_summary#:#Summary
+average#:#Average
+discipline#:#Dicipline
+details#:#Details
+pre_test#:#Pre-Test
+final_test#:#Final Test
+date#:#Date
+points#:#Points
+tries#:#Tries
+module#:#Module
+cbt_id_does_not_match#:#The CBT ID of the uploaded tracking data does not match with the CBT ID where the file is uploaded.
+matriculation_does_not_match#:#The matriculation number of the uploaded tracking data does not match with the number of the current user.
+no_matriculation_given#:#No matriculation number given.
+no_user_found_for_matriculation#:#No user found for matriculation number
+multiple_user_found_for_matriculation#:#Multiple users found for matriculation number
+disc_mat_names_file#:#Disciple/Modules Names File
+disc_mat_names_file_desc#:#Lines must be separated by \n, fields must be separated by ";", encoding must be UTF-8.
+names#:#Names
+key#:#Key
+value#:#Value
+export_excel#:#Excel-Export
+general_information#:#General Information
+general_average#:#General Average
+modules#:#Modules
+total_time#:#Total time of work
+total_conn#:#Tatal connexions number
+val_percentage#:#Percentage of validate modules
+first_access#:#Training start
