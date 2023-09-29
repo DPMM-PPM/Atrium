@@ -6,7 +6,8 @@ $id = "xatr";
 // code version; must be changed for all code changes
 $version = "2.0.0";
 /*
-version 2.0.0 => utilisation de la bibliothèque phpseclib en lieu et place de mcrypt qui est dépréciée
+version 2.0.0 => changement de la méthode de cryptage suite à l'abandon de mcrypt par php
+		 affichage de l'alerte en cas de tri sur la colonne 'moyenne'
 version 1.0.0 => correctif classe excel sur V5.3 - correction sur le calcul de la moyenne - présentation de la progression
 version 0.0.45=> mise en conformite 5.3 et php 7.1 - ticket mantis nmr 0000180
 version 0.0.44=> mise en conformité 5.2 - Adaptation des class class.ilAtriumLPMatrixTableGUI, class.ilAtriumLPSummaryTableGUI et class.ilAtriumLPUsersTableGUI avec phpexcel
