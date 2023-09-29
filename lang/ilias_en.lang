@@ -69,3 +69,4 @@ total_time#:#Total time of work
 total_conn#:#Tatal connexions number
 val_percentage#:#Percentage of validate modules
 first_access#:#Training start
+sort_does_not_possible#:#Sort not possible
