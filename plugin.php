@@ -4,8 +4,9 @@
 $id = "xatr";
  
 // code version; must be changed for all code changes
-$version = "2.0.0";
+$version = "2.0.1";
 /*
+version 2.0.1 => modification du composer.json pour prise en compte de l'autoload des classes à partir de la version 7.26 d'ILIAS
 version 2.0.0 => changement de la méthode de cryptage suite à l'abandon de mcrypt par php
 		 affichage de l'alerte en cas de tri sur la colonne 'moyenne'
 version 1.0.0 => correctif classe excel sur V5.3 - correction sur le calcul de la moyenne - présentation de la progression
