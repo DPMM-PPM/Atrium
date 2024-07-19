@@ -73,4 +73,4 @@ total_conn#:#Nb total de connexions
 val_percentage#:#Pourcentage de modules validés
 first_access#:#Début de la préparation
 test_status#:#Statut du test
-
+sort_does_not_possible#:#Le tri n'est pas possible sur cette valeur
