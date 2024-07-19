@@ -46,7 +46,7 @@ Version 0.42 (2013-06-03)
 Version 1.0 (2016-03-14)
 * Corrections pour mise en conformité publication Excel
   
-Version 2.0 (2023-07-15)
+Version 2.0 (2023-07-24)
 * Corrections pour mise en conformité passage en php7.3 et abandon de l'extention mcrypt
   
 * Compatibilité ILIAS 7
