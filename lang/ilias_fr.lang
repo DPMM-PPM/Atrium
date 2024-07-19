@@ -73,4 +73,6 @@ total_conn#:#Nb total de connexions
 val_percentage#:#Pourcentage de modules validés
 first_access#:#Début de la préparation
 test_status#:#Statut du test
-
+sort_does_not_possible#:#Le tri n'est pas possible sur cette valeur
+invalid_key#:#La clé n'est pas conforme.
+invalid_key_info#:#La clé doit comporter exactement 16,20,24,28 ou 32 caractères pour être valide.
