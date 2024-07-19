@@ -4,6 +4,7 @@
 $id = "xatr";
  
 // code version; must be changed for all code changes
+
 $version = "3.0";
 /*
 version 3.0 => mise en conformitÃ© ILIAS Version 8.12 et php version 8.3.8
