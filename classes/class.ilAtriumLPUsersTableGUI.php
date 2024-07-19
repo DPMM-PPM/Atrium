@@ -269,7 +269,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		/* Ajout pour lever les erreurs unknown column 'average' et sizeof() si le CBT est utilise hors d'un cours */
 		 if (!$this->in_course){
 			 $this->user_fields=array();
-			 ilLoggerFactory::getRootLogger()->info('manigand not in course');
+			 ilLoggerFactory::getRootLogger()->info('CBT not in course');
 		 }
 		/* Si on trie par la moyenne, affichage d'un message d'erreur indiquant que ce n'est pas possible */
 		if (ilUtil::stripSlashes($this->getOrderField())=='average'){
