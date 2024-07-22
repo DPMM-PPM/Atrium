@@ -18,10 +18,10 @@ class ilAtriumNamesTableGUI extends ilTable2GUI
 	function __construct($a_parent_obj, $a_parent_cmd, $a_plugin, $a_obj_id)
 	{
 		global $ilCtrl, $lng, $ilAccess, $lng;
-		
+		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
 		$this->pl = $a_plugin;
 		$this->obj_id = $a_obj_id;
-		$this->pl->includeClass("class.ilAtriumNames.php");
+		//$this->pl->includeClass("class.ilAtriumNames.php");
 		
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 		$this->setData(ilAtriumNames::getNames($this->obj_id));
@@ -44,7 +44,7 @@ class ilAtriumNamesTableGUI extends ilTable2GUI
 	/**
 	 * Fill table row
 	 */
-	protected function fillRow($a_set)
+	protected function fillRow($a_set): void
 	{
 		global $lng;
 

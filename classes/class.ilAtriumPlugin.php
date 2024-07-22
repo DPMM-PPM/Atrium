@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/classes/class.ilRepositoryObjectPlugin.php");
+include_once("./Services/Repository/PluginSlot/class.ilRepositoryObjectPlugin.php");
  
 /**
 * Atrium repository object plugin
@@ -13,12 +13,13 @@ include_once("./Services/Repository/classes/class.ilRepositoryObjectPlugin.php")
 */
 class ilAtriumPlugin extends ilRepositoryObjectPlugin
 {
-	function getPluginName()
+	function getPluginName(): string
 	{
 		return "Atrium";
 	}
 	
-	protected function uninstallCustom() {
+	protected function uninstallCustom(): void
+	 {
 
 		global $ilDB;
 

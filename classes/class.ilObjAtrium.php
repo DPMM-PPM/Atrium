@@ -2,9 +2,10 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/classes/class.ilObjectPlugin.php");
+include_once("./Services/Repository/PluginSlot/class.ilObjectPlugin.php");
 include_once("./Services/Tracking/interfaces/interface.ilLPStatusPlugin.php");
 include_once("class.ilAtrUtil.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 include './Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/vendor/autoload.php';
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Rijndael;
@@ -20,7 +21,9 @@ use phpseclib3\Crypt\Random;
 class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 {
 
-
+private $cbt_id;
+private $cbt_key;
+private $online;
 	/**
 	 * Constructor
 	 *
@@ -34,7 +37,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Get type.
 	 */
-	final function initType()
+	final function initType(): void
 	{
 		$this->setType("xatr");
 	}
@@ -42,7 +45,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Create object
 	 */
-	function doCreate()
+	function doCreate(bool $clone_mode=false): void
 	{
 		global $ilDB;
 		
@@ -58,7 +61,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Read data from db
 	 */
-	function doRead()
+	function doRead(): void
 	{
 		global $ilDB;
 		
@@ -76,7 +79,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Update data
 	 */
-	function doUpdate()
+	function doUpdate(): void
 	{
 		global $ilDB;
 		
@@ -91,7 +94,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Delete data from db
 	 */
-	function doDelete()
+	function doDelete(): void
 	{
 		global $ilDB;
 		
@@ -104,7 +107,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	/**
 	 * Do Cloning
 	 */
-	function doClone($a_target_id,$a_copy_id,$new_obj)
+	function doClone($a_target_id,$a_copy_id,$new_obj): void
 	{
 		global $ilDB;
 		
@@ -182,13 +185,14 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	 */
 	function processLPFile($a_file, $a_tutor = false)
 	{
+	include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/exceptions/class.ilAtriumException.php");
 		$rinj = new \phpseclib3\Crypt\Rijndael('ecb');
 		$rinj->setKey($this->getCbtKey());
 		$rinj->disablePadding();
 
-		global $ilUser, $ilDB;
+		global $ilUser, $ilDB, $ilLog;
 		
-		$this->plugin->includeClass("../exceptions/class.ilAtriumException.php");
+		//$this->plugin->includeClass("../exceptions/class.ilAtriumException.php");
 		if ($a_file["name"] == "" || !is_file($a_file["tmp_name"]))
 		{
 			throw new ilAtriumException($this->plugin->txt("no_file_given"));
@@ -196,7 +200,8 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 		
 		$content = file_get_contents($a_file["tmp_name"]);
 		unlink($a_file["tmp_name"]);
-//echo ("<script>console.log('test')</script>");//"avant décryptage, \$content est en : .mb_detect_encoding($content)."<br>";
+//$ilLog->write("+++++++++++++++++++++++++");
+//$ilLog->write("content : ".$content);//echo ("<script>console.log('test')</script>");//"avant décryptage, \$content est en : .mb_detect_encoding($content)."<br>";
 		if ($content == "")
 		{
 			throw new ilAtriumException($this->plugin->txt("no_content_found"));
@@ -204,6 +209,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 		/* cryptage en rijndael128 ------------------------------------------------------------------------*/
 		//$json_string = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->getCbtKey(),	ilAtrUtil::hex2str($content), MCRYPT_MODE_ECB));
 		$json_string = trim($rinj->decrypt(ilAtrUtil::hex2str($content)));
+//$ilLog->write("json_string : ".$json_string);		
 		//echo "après decryptage php, \$json_string est en : ".mb_detect_encoding($json_string)."<br>";
 		/* cryptage en rijndael 256  ------------------------------------------------------------------------	
 		$json_string = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->getCbtKey(), $content, MCRYPT_MODE_ECB));
@@ -215,6 +221,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 //echo $json_string."<br>";
 //echo ("<script>console.log($json_string)</script>");
 		$lp = json_decode($json_string);
+//$ilLog->write("après json_decodelp");
 //echo "last_error_msg ".json_last_error()."<br>";
 //echo "lp".$lp;
 		if ($lp == null)
@@ -257,19 +264,30 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 			}
 			$user_id = $user_ids[0];
 		}
-		
+$ilLog->write("status avant save = ".$this->getLPStatusForUser($user_id));
+$status_pre_save = $this->getLPStatusForUser($user_id);
 		// parse and save tracking data
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+		//$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		$track = new ilAtriumTrackingData($this->getId(), $user_id);
+//$ilLog->write("objet TrackingData créé");
 		$track->parse($lp);
+//$ilLog->write("après parse");
 		$track->save();
-		
+//$ilLog->write("après save");
 		// update read event
 		include_once("./Services/Tracking/classes/class.ilChangeEvent.php");
+$ilLog->write("variables change event :".$this->getType()." | ".$this->getRefId()." | ".$this->getId()." | ".$user_id." | ".$track->getTotalConnections()." | ".$track->getTotalTime());
+$ilLog->write("status = ".$this->getLPStatusForUser($user_id));
+if ($status_pre_save==0){
+ilChangeEvent::_recordReadEvent($this->getType(),
+			$this->getRefId(), $this->getId(), $user_id,
+			true, null, $track->getTotalTime());
+}
 		ilChangeEvent::_recordReadEvent($this->getType(),
 			$this->getRefId(), $this->getId(), $user_id,
 			true, $track->getTotalConnections(), $track->getTotalTime());
-		
+
+//$ilLog->write("après event");		
 		// hack first access
 		if ($track->getTotalFirstConnection() != "")
 		{
@@ -279,10 +297,11 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 				" AND usr_id = ".$ilDB->quote($user_id, "integer")
 				);
 		}
+//$ilLog->write("après update read_event");
 		// update lp status
 		include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
 		ilLPStatusWrapper::_updateStatus($this->getId(), $user_id, $this, true);
-		
+//$ilLog->write("après update status");		
 		// write percentage
 		
 		return $user_id;
@@ -294,38 +313,38 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	// LP
 	//
 	
-	public function getLPCompleted()
+	public function getLPCompleted(): array
 	{
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupUsersForStatus($this->getId(), 2);
 	}
 	
-	public function getLPNotAttempted()
+	public function getLPNotAttempted(): array
 	{
 		// what should returned here? all users?
 		return array();
 	}
 	
-	public function getLPFailed()
+	public function getLPFailed(): array
 	{
 		return array();
 	}
 	
-	public function getLPInProgress()
+	public function getLPInProgress(): array
 	{
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupUsersForStatus($this->getId(), 1);
 	}
 	
-	public function getLPStatusForUser($a_user_id)
+	public function getLPStatusForUser($a_user_id): int
 	{
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupStatus($this->getId(), $a_user_id);
 	}
 	
-	public function getPercentageForUser($a_user_id)
+	public function getPercentageForUser($a_user_id): int
 	{
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupPercentage($this->getId(), $a_user_id);
 	}
 	
@@ -364,11 +383,11 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 	function exportUserDetailsExcel($a_user_id)
 	{
 		global $lng, $ilDB, $lng, $ilLog;
-
+//$ilLog->write("dans exportUserDetailExcel");
 		include_once("./Services/Calendar/classes/class.ilDatePresentation.php");
 		ilDatePresentation::setUseRelativeDates(false);
 		
-		$this->plugin->includeClass("class.ilAtriumNames.php");
+	//	$this->plugin->includeClass("class.ilAtriumNames.php");
 		$lng->loadLanguageModule("trac");
 		
 		if (ilObject::_lookupType($a_user_id) != "usr")
@@ -392,7 +411,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 			" AND usr_id = ".$ilDB->quote($a_user_id, "integer")
 			);
 		$re_data = $ilDB->fetchAssoc($set);
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		$tr_data = new ilAtriumTrackingData($this->getId(), $a_user_id);
 		
 		// header row
@@ -434,7 +453,7 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 		$excelFile->setCell($row,0,$this->plugin->txt("general_average"),null);
 		$excelFile->setBold($excelFile->getCoordByColumnAndRow(0, $row));
 		$excelFile->setCell($row,1,ilAtriumTrackingData::lookupAveragePoints($this->getId(), $a_user_id),null);
-		
+//$ilLog->write("avant foreach");		
 		foreach ($tr_data->getDisciplineData() as $disc)
 		{
 			$row++;
@@ -485,11 +504,11 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 			{
 				$row++;
 				$excelFile->setCell($row,0,ilAtriumNames::lookup($k, $this->getId()),null);
-				if ($m["PRE"][1] != 99)
+			/*	if ($m["PRE"][1] != 99)
 				{
 					$excelFile->setCell($row,1,$m["PRE"][2],null);
 					$excelFile->setCell($row,2,$m["PRE"][1],null);
-				}
+				}*/
 				if ($m["FINAL"][1] != 99)
 				{
 					$excelFile->setCell($row,3,$m["FINAL"][2],null);
@@ -498,9 +517,9 @@ class ilObjAtrium extends ilObjectPlugin implements ilLPStatusPluginInterface
 				}
 			}
 		}
-		$exc_name = ilUtil::getASCIIFilename($user->getLastName()."_".$user->getFirstname());
+		$exc_name = ilFileUtils::getASCIIFilename($user->getLastName()."_".$user->getFirstname());
 		$finalFile=$excelFile->writeToTmpFile();
-		ilUtil::deliverFile($finalFile, $exc_name.".xls", "application/vnd.ms-excel");
+		ilFileDelivery::deliverFileLegacy($finalFile, $exc_name.".xls", "application/vnd.ms-excel");
 	}
 	
 	/**

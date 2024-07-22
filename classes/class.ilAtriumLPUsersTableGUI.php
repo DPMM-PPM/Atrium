@@ -22,16 +22,17 @@ include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
  */
 class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 {
-	protected $user_fields; // array
-	protected $filter; // array
-	protected $in_course; // int
+	protected array $user_fields; // array
+	protected array $filter; // array
+	protected int $in_course; // int
+//	protected ilGlobalTemplateInterface $tpl;
 	
 	/**
 	* Constructor
 	*/
 	function __construct($a_parent_obj, $a_parent_cmd, $a_obj_id, $a_ref_id, $a_plugin, $a_print_view = false)
 	{
-		global $ilCtrl, $lng, $ilAccess, $lng, $rbacsystem, $tree, $lng;
+		global $ilCtrl, $lng, $ilAccess, $lng, $rbacsystem, $tree, $lng, $DIC;
 		
 		$lng->loadLanguageModule("trac");
 		
@@ -40,7 +41,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$this->ref_id = $a_ref_id;
 		$this->plugin = $a_plugin;
 		$this->type = ilObject::_lookupType($a_obj_id);
-
+		$this->tpl = $DIC["tpl"];
 		$this->in_course = $tree->checkForParentType($this->ref_id, "crs");
 		if($this->in_course)
 		{
@@ -98,7 +99,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 	 * @param
 	 * @return
 	 */
-	function getSelectableColumns()
+	function getSelectableColumns(): array
 	{
 		global $lng, $ilSetting;
 
@@ -207,8 +208,10 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 			// other user profile fields
 			foreach ($ufs as $f => $fd)
 			{
-				if (!isset($cols[$f]) && $f != "username" && !$fd["lists_hide"]  && ($fd["course_export_fix_value"] || $ilSetting->get("usr_settings_course_export_".$f)))
+
+				if (!isset($cols[$f]) && $f != "username" && !isset($fd["lists_hide"])  && (isset($fd["course_export_fix_value"]) || $ilSetting->get("usr_settings_course_export_".$f)))
 				{
+			//	ilLoggerFactory::getRootLogger()->info('valeurs $f:'.$f.' | $fd["lists_hide"]:');
 					$cols[$f] = array(
 						"txt" => $lng->txt($f),
 						"default" => false);
@@ -244,8 +247,8 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 	*/
 	function getItems()
 	{
-		global $lng, $tree;
-
+		global $lng, $tree, $DIC, $ilLog;
+//$ilLog->write("Dans getItem");
 		$this->determineOffsetAndOrder();
 		
 		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
@@ -258,7 +261,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		{
 			// privacy (if course agreement is activated)
 			include_once "Services/PrivacySecurity/classes/class.ilPrivacySettings.php";
-			$privacy = ilPrivacySettings::_getInstance();
+			$privacy = ilPrivacySettings::getInstance();
 		    if($privacy->courseConfirmationRequired())
 			{
 				$check_agreement = $this->in_course;
@@ -269,12 +272,16 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		/* Ajout pour lever les erreurs unknown column 'average' et sizeof() si le CBT est utilisé hors d'un cours */
 		 if (!$this->in_course){
 			 $this->user_fields=array();
-			 ilLoggerFactory::getRootLogger()->info('manigand not in course');
+
+			 ilLoggerFactory::getRootLogger()->info("Le cbt n'est pas dans un cours");
+
 		 }
 		/* Si on trie par la moyenne, affichage d'un message d'erreur indiquant que ce n'est pas possible */
 		if (ilUtil::stripSlashes($this->getOrderField())=='average'){
 			$this->setOrderField('');
-			ilUtil::sendFailure($this->plugin->txt("sort_does_not_possible"));
+
+			$DIC->ui()->mainTemplate()->setOnScreenMessage('failure', $this->plugin->txt("sort_does_not_possible"), true);
+
 		}
 
 		$tr_data = ilTrQuery::getUserDataForObject(
@@ -307,11 +314,14 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		}
 
 		// add average
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+		
 		foreach ($tr_data["set"] as $k => $v)
 		{
+//		$ilLog->write("Dans getItem - Foreach ".$tr_data["set"][$k]['login']);
 			$tr_data["set"][$k]["average"] =
 				round(ilAtriumTrackingData::lookupAveragePoints($this->obj_id, $v["usr_id"]), 2);
+		//$ilLog->write("average : ".round(ilAtriumTrackingData::lookupAveragePoints($this->obj_id, $v["usr_id"]), 2));
 		}
 		
 		$this->setMaxCount($tr_data["cnt"]);
@@ -322,7 +332,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 	/**
 	* Init filter
 	*/
-	function initFilter()
+	function initFilter(): void
 	{
 		global $lng;
 
@@ -422,12 +432,13 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 	/**
 	* Fill table row
 	*/
-	protected function fillRow($data)
+	protected function fillRow($data): void
 	{
-		global $ilCtrl, $lng;
-
+		global $ilCtrl, $lng, $ilLog;
+//$ilLog->write("dans fillRow");
 		foreach ($this->getSelectedColumns() as $c)
 		{
+//$ilLog->write("selectedColums ".$c);
 			if($c == 'status' && $data[$c] != LP_STATUS_COMPLETED_NUM)
 			{
 				$timing = $this->showTimingsWarning($this->ref_id, $data["usr_id"]);
@@ -450,6 +461,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 
 			$this->tpl->setCurrentBlock("user_field");
 			$val = $this->parseValue($c, $data[$c], "user");
+//$ilLog->write("val ".$val." | ".$c." | ".$data[$c]);
 			$this->tpl->setVariable("VAL_UF", $val);
 			$this->tpl->parseCurrentBlock();
 		}
@@ -469,7 +481,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$ilCtrl->setParameterByClass("illplistofobjectsgui", 'user_id', '');
 	}
 	
-	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row) // VINCENT SAYAH
+	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row): void // VINCENT SAYAH
 	{
 		$labels = $this->getSelectableColumns();
 		$cnt = 0;
@@ -482,8 +494,10 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$a_excel->setBold($a_row, $cnt, $labels[$c]["txt"]); // VINCENT SAYAH
 	}
 	
-	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set) // VINCENT SAYAH
+	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set): void // VINCENT SAYAH
 	{
+	global $ilLog;
+	$ilLog->write("Dans fillRowExcel");
 		$cnt = 0;
 		foreach ($this->getSelectedColumns() as $c)
 		{
@@ -502,7 +516,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		}
 	}
 
-	protected function fillHeaderCSV($a_csv)
+	protected function fillHeaderCSV($a_csv): void
 	{
 		$labels = $this->getSelectableColumns();
 		foreach ($this->getSelectedColumns() as $c)
@@ -513,7 +527,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$a_csv->addRow();
 	}
 
-	protected function fillRowCSV($a_csv, $a_set)
+	protected function fillRowCSV($a_csv, $a_set): void
 	{
 		foreach ($this->getSelectedColumns() as $c)
 		{
@@ -532,7 +546,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$a_csv->addRow();
 	}
 	
-	protected function parseValue($id, $value, $type)
+	protected function parseValue($id, $value, $type): string
 	{
 		global $lng;
 
