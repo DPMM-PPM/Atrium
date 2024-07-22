@@ -38,7 +38,7 @@ class ilAtriumTrackingData
 	 *
 	 * @param int $a_val object id	
 	 */
-	function setObjectId($a_val)
+	function setObjectId($a_val): void
 	{
 		$this->obj_id = $a_val;
 	}
@@ -48,7 +48,7 @@ class ilAtriumTrackingData
 	 *
 	 * @return int object id
 	 */
-	function getObjectId()
+	function getObjectId(): int
 	{
 		return $this->obj_id;
 	}
@@ -58,7 +58,7 @@ class ilAtriumTrackingData
 	 *
 	 * @param int $a_val user id	
 	 */
-	function setUserId($a_val)
+	function setUserId($a_val): void
 	{
 		$this->user_id = $a_val;
 	}
@@ -68,7 +68,7 @@ class ilAtriumTrackingData
 	 *
 	 * @return int user id
 	 */
-	function getUserId()
+	function getUserId(): int
 	{
 		return $this->user_id;
 	}
@@ -78,7 +78,7 @@ class ilAtriumTrackingData
 	 *
 	 * @return int nr of total connections
 	 */
-	function getTotalConnections()
+	function getTotalConnections(): int
 	{
 		return (int) $this->totals_arr[0];
 	}
@@ -88,7 +88,7 @@ class ilAtriumTrackingData
 	 *
 	 * @return int total time in seconds
 	 */
-	function getTotalTime()
+	function getTotalTime(): int
 	{
 		return (int) $this->totals_arr[1];
 	}
@@ -125,6 +125,8 @@ class ilAtriumTrackingData
 	 */
 	function parse($a_tracking_arr)
 	{
+	global $ilLog;
+//		$ilLog->write("Dans parse");
 		$this->reset();
 		
 		$cnt = count($a_tracking_arr);
@@ -154,15 +156,20 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	function read()
+	function read(): void
 	{
-		global $ilDB;
-	
+		global $ilDB, $ilLog;
+//	$ilLog->write("dans read");
 		$set = $ilDB->query("SELECT * FROM rep_robj_xatr_tracking ".
 			" WHERE obj_id = ".$ilDB->quote($this->getObjectId(), "integer").
 			" AND usr_id = ".$ilDB->quote($this->getUserId(), "integer")
 			);
+/*	$ilLog->write("sql : SELECT * FROM rep_robj_xatr_tracking ".
+			" WHERE obj_id = ".$ilDB->quote($this->getObjectId(), "integer").
+			" AND usr_id = ".$ilDB->quote($this->getUserId(), "integer"));*/
 		$rec  = $ilDB->fetchAssoc($set);
+	if ($rec==null){$ilLog->write("table vide");}
+	else{
 		$this->personal_data_arr = unserialize($rec["raw_pers_data"]);
 		$this->totals_arr[0] = (int) $rec["total_connections"];
 		$this->totals_arr[1] = (int) $rec["total_time"];
@@ -176,7 +183,7 @@ class ilAtriumTrackingData
 		$this->totals_arr[5] = $rec["avg_points"];
 		$this->average_arr = unserialize($rec["raw_avg_data"]);
 		$this->avg = unserialize($rec["avg_data"]);
-		
+		}
 		$set = $ilDB->query("SELECT * FROM rep_robj_xatr_tr_disc ".
 			" WHERE obj_id = ".$ilDB->quote($this->getObjectId(), "integer").
 			" AND usr_id = ".$ilDB->quote($this->getUserId(), "integer").
@@ -192,7 +199,7 @@ class ilAtriumTrackingData
 			$this->discipline_arr[$disc_cnt][4][0] = $rec["disc_time"];
 			$this->discipline_arr[$disc_cnt][4][1] = $rec["disc_connections"];
 			$this->discipline_arr[$disc_cnt][4][2] = (($fc = $rec["first_connection"]) != "")
-				? substr(8, 2, $fc)."/".substr(5, 2, $fc)."/".substr(0, 4, $fc)
+				? substr($fc, 8, 2)."/".substr($fc,5, 2)."/".substr($fc,0, 4)
 				: null;
 			$set2 = $ilDB->query("SELECT * FROM rep_robj_xatr_tr_test ".
 				" WHERE obj_id = ".$ilDB->quote($this->getObjectId(), "integer").
@@ -248,10 +255,10 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	function save()
+	function save(): void
 	{
 		global $ilDB, $ilLog;
-		
+//$ilLog->write("Dans save");
 		// clean up
 		$ilDB->manipulate("DELETE FROM rep_robj_xatr_tracking WHERE ".
 			" obj_id = ".$ilDB->quote($this->getObjectId(), "integer").
@@ -477,7 +484,7 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	function getDisciplineData($a_disc = "")
+	function getDisciplineData($a_disc = ""): array
 	{
 		if ($a_disc == "")
 		{
@@ -502,7 +509,7 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	static function lookupStatus($a_obj_id, $a_usr_id)
+	static public function lookupStatus($a_obj_id, $a_usr_id): int
 	{
 		global $ilDB;
 		
@@ -511,7 +518,9 @@ class ilAtriumTrackingData
 			" AND usr_id = ".$ilDB->quote($a_usr_id, "integer")
 			);
 		$rec = $ilDB->fetchAssoc($set);
-		return (int) $rec["status"];
+		if ($rec!=null){
+		return (int) $rec["status"]; }
+		else{return 0;} 
 	}
 	
 	/**
@@ -520,16 +529,21 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	static function lookupPercentage($a_obj_id, $a_usr_id)
+	static function lookupPercentage($a_obj_id, $a_usr_id): int
 	{
-		global $ilDB;
-		
+		global $ilDB, $ilLog;
+//	$ilLog->write("dans lookup pourcentage");	
 		$set = $ilDB->query("SELECT percentage FROM rep_robj_xatr_tracking ".
 			" WHERE obj_id = ".$ilDB->quote($a_obj_id, "integer").
 			" AND usr_id = ".$ilDB->quote($a_usr_id, "integer")
 			);
+			
 		$rec = $ilDB->fetchAssoc($set);
-		return (int) $rec["percentage"];
+		if ($rec!=null){
+//	$ilLog->write("pourcentage = ".$rec["percentage"]);
+			return (int) $rec["percentage"];}
+		else {
+			return 0;}
 	}
 	
 	/**
@@ -540,14 +554,19 @@ class ilAtriumTrackingData
 	 */
 	static function lookupAveragePoints($a_obj_id, $a_usr_id)
 	{
-		global $ilDB;
-		
+		global $ilDB, $ilLog;
+//		$ilLog->write("dans lookupAverage ".$a_obj_id." | ".$a_usr_id);
 		$set = $ilDB->query("SELECT avg_points FROM rep_robj_xatr_tracking ".
 			" WHERE obj_id = ".$ilDB->quote($a_obj_id, "integer").
 			" AND usr_id = ".$ilDB->quote($a_usr_id, "integer")
 			);
 		$rec = $ilDB->fetchAssoc($set);
-		return $rec["avg_points"];
+		if ($rec!=null){
+			return $rec["avg_points"];
+			}
+		else{
+			return 0;
+			}
 	}
 	
 	/**
@@ -556,7 +575,7 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	static function lookupUsersForStatus($a_obj_id, $a_status)
+	static function lookupUsersForStatus($a_obj_id, $a_status): array
 	{
 		global $ilDB;
 		
@@ -578,7 +597,7 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	function lookupDisciplines($a_obj_id)
+	static function lookupDisciplines($a_obj_id)
 	{
 		global $ilDB;
 		
@@ -600,7 +619,7 @@ class ilAtriumTrackingData
 	 * @param
 	 * @return
 	 */
-	function lookupDisciplineDataForUser($a_obj_id, $a_usr_id, $a_disc)
+	static function lookupDisciplineDataForUser($a_obj_id, $a_usr_id, $a_disc)
 	{
 		global $ilDB;
 		

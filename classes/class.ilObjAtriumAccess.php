@@ -2,7 +2,8 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/classes/class.ilObjectPluginAccess.php");
+include_once("./Services/Repository/PluginSlot/class.ilObjectPluginAccess.php");
+include_once("./Services/Utilities/classes/class.ilUtil.php");
 
 /**
  * Access/Condition checking for Atrium object
@@ -31,7 +32,7 @@ class ilObjAtriumAccess extends ilObjectPluginAccess
 	*
 	* @return	boolean		true, if everything is ok
 	*/
-	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = "")
+	function _checkAccess($a_cmd, $a_permission, $a_ref_id, $a_obj_id, $a_user_id = ""): bool
 	{
 		global $ilUser, $ilAccess;
 
@@ -57,7 +58,7 @@ class ilObjAtriumAccess extends ilObjectPluginAccess
 	/**
 	* Check online status of example object
 	*/
-	static function checkOnline($a_id)
+	static function checkOnline($a_id): bool
 	{
 		global $ilDB;
 		

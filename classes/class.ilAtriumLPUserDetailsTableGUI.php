@@ -4,7 +4,9 @@
 
 include_once("./Services/Table/classes/class.ilTable2GUI.php");
 include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
-include_once "./Services/Tracking/classes/class.ilObjUserTracking.php";
+include_once("./Services/Tracking/classes/class.ilObjUserTracking.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 
 /**
  * TableGUI class for atrium user lp details
@@ -21,23 +23,23 @@ class ilAtriumLPUserDetailsTableGUI extends ilLPTableBaseGUI
 	 */
 	function __construct($a_parent_obj, $a_parent_cmd, $a_plugin, $a_user)
 	{
-		global $ilCtrl, $lng, $ilAccess, $lng;
-		
+		global $ilCtrl, $lng, $ilAccess, $ilLog;
+//$ilLog->write("Dans constructeur");		
 		$lng->loadLanguageModule("trac");
 		
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 		
 		$this->plugin = $a_plugin;
 		$this->user = $a_user;
-		
-		$this->plugin->includeClass("class.ilAtriumNames.php");
-		
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
-		$track = new ilAtriumTrackingData($this->parent_obj->object->getId(), $a_user->getId());
+//$ilLog->write("parent object :".$this->parent_obj->getId());
+$track = new ilAtriumTrackingData($this->parent_obj->getId(), $a_user->getId());
+		//$track = new ilAtriumTrackingData($this->parent_obj->object->getId(), $a_user->getId());
 		
 		$this->setData($track->getDisciplineData());
 		
-		$this->setTitle($this->plugin->txt("details").": ".$this->parent_obj->object->getTitle().
+		/*$this->setTitle($this->plugin->txt("details").": ".$this->parent_obj->object->getTitle().
+			", ".$this->user->getFirstname()." ".$this->user->getLastname()); */
+		$this->setTitle($this->plugin->txt("details").": ".$this->parent_obj->getTitle().
 			", ".$this->user->getFirstname()." ".$this->user->getLastname());
 		
 		$this->addColumn($this->plugin->txt("discipline"), "discipline");
@@ -57,9 +59,9 @@ class ilAtriumLPUserDetailsTableGUI extends ilLPTableBaseGUI
 	/**
 	 * Fill table row
 	 */
-	protected function fillRow($a_set)
+	protected function fillRow($a_set): void
 	{
-		global $lng, $ilCtrl;;
+		global $lng, $ilCtrl, $ilLog;
 
 		if (count($a_set[2]) > 0 || count($a_set[3]) > 0)
 		{
@@ -71,8 +73,9 @@ class ilAtriumLPUserDetailsTableGUI extends ilLPTableBaseGUI
 			$this->tpl->parseCurrentBlock();
 		}
 
-		$this->tpl->setVariable("DISC", ilAtriumNames::lookup($a_set[0], $this->parent_obj->object->getId()));
-		$this->tpl->setVariable("DISC_IMG", ilUtil::img(ilUtil::getImagePath("icon_fold.svg")));
+//	$ilLog->write("set :".$a_set[0]." | ".$this->parent_obj->getId());
+		$this->tpl->setVariable("DISC", ilAtriumNames::lookup($a_set[0], $this->parent_obj->getId()));
+		$this->tpl->setVariable("DISC_IMG", ilUtil::getImagePath("icon_fold.svg"));
 		if ($a_set[4][0] > 0)
 		{
 			$this->tpl->setVariable("TIME_SPENT", $this->parseValue("spent_seconds", $a_set[4][0], ""));

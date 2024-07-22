@@ -3,6 +3,8 @@
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 
 /**
  * Atrium matrix table
@@ -19,18 +21,18 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 	 */
 	function __construct($a_parent_obj, $a_parent_cmd, $ref_id, $a_plugin)
 	{
-		global $ilCtrl, $lng, $ilAccess, $lng, $ilObjDataCache;
+		global $ilCtrl, $lng, $ilAccess, $lng, $ilObjDataCache, $ilLog;
 		
 		$lng->loadLanguageModule("trac");
 
 		$this->plugin = $a_plugin;
-		$this->plugin->includeClass("class.ilAtriumNames.php");
+		//$this->plugin->includeClass("class.ilAtriumNames.php");
 		
 		$this->setId("atrsmtx_".$ref_id);
 		$this->ref_id = $ref_id;
 		$this->obj_id = ilObject::_lookupObjId($ref_id);
 		
-		$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+		//$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		$this->disciplines = ilAtriumTrackingData::lookupDisciplines($this->obj_id);
 
 		$this->initFilter();
@@ -56,8 +58,8 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 			$tooltip = "";
 			if(isset($labels[$c]["icon"]))
 			{
-				$alt = $lng->txt($labels[$c]["type"]);
-				$icon = '<img src="'.$labels[$c]["icon"].'" alt="'.$alt.'" />';
+				$alt = "";
+				$icon = '<img class="ilListItemIcon" src="'.$labels[$c]["icon"].'" alt="'.$alt.'" />';
 				if(sizeof($selected) > 5)
 				{
 					$tooltip = $title;
@@ -68,23 +70,24 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 					$title = $icon.' '.$title;
 				}
 			}
-			$this->addColumn($title, $labels[$c]["id"], "", false, "", $tooltip);
+			$this->addColumn($title, "", "", false, "", $tooltip);
 		}
 		
 		$this->setExportFormats(array(self::EXPORT_CSV, self::EXPORT_EXCEL));
 	}
 
-	function initFilter()
+	function initFilter(): void
     {
-		global $lng;
+		global $lng, $ilLog;
 
 		$item = $this->addFilterItemByMetaType("name", ilTable2GUI::FILTER_TEXT);
 		$this->filter["name"] = $item->getValue();
 	}
 
-	function getSelectableColumns()
+	function getSelectableColumns(): array
 	{
-		global $ilObjDataCache;
+		global $ilObjDataCache,$ilLog;
+		
 
 		$columns = array();
 		
@@ -120,9 +123,9 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 			{
 				foreach($this->disciplines as $k => $disc)
 				{
-					$icon = ilUtil::getTypeIconPath("fold", $k, "tiny");
+					$icon = ilUtil::getImagePath("icon_fold.svg");
 					$tmp_cols[strtolower($disc)."#~#objdisc_".$k] =
-						array("txt" => ilAtriumNames::lookup($disc, $this->parent_obj->object->getId()), "icon"=>$icon, "default" => true);
+						array("txt" => ilAtriumNames::lookup($disc, $this->parent_obj->getId()), "icon"=>$icon, "default" => true);
 				}
 			}
 
@@ -160,23 +163,25 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 				"default" => false);
 		}
 		*/
+		
 		return $columns;
 	}
 
 	function getItems()
 	{
-		global $lng, $tree;
+		global $lng, $tree, $ilLog;
 
 		// $this->determineOffsetAndOrder();
-
 		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
+		//$ilLog->write("avant getobjectIds ".$this->obj_id." ".$this->ref_id);
 		$collection = ilTrQuery::getObjectIds($this->obj_id, $this->ref_id, true);
 		if($collection["object_ids"])
 		{
 			// we need these for the timing warnings
 			$this->ref_ids = $collection["ref_ids"];
-
-			$data = ilTrQuery::getUserObjectMatrix($this->ref_id, $collection["object_ids"], $this->filter["name"]);
+			foreach($collection["object_ids"] as $k => $val){
+			//$ilLog->write("dans foreach ".$k." ".$val);}
+			$data = ilTrQuery::getUserObjectMatrix($this->ref_id, $collection["object_ids"], $this->filter["name"],NULL,array(),NULL);
 			if($collection["objectives_parent_id"] && $data["users"])
 			{
 				$objectives = ilTrQuery::getUserObjectiveMatrix($collection["objectives_parent_id"], $data["users"]);
@@ -199,8 +204,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 					}
 				}
 			}
-
-			$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+			if (isset($data["set"])){
 			foreach(array_keys($data["set"]) as $user_id)
 			{
 				foreach($this->disciplines as $k => $d)
@@ -211,16 +215,20 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 						"percentage" => $ddata["percentage"]);
 				}
 			}
+			
 			$this->setMaxCount($data["cnt"]);
 			$this->setData($data["set"]);
+			}
 //var_dump($this->sco_ids);
 			return $collection["object_ids"];
 		}
 		return false;
 	}
 
-	function fillRow($a_set) // VINCENT SAYAH
+	function fillRow($a_set): void // VINCENT SAYAH
 	{
+	global $ilLog;
+	
 		$this->tpl->setVariable("VAL_LOGIN", $a_set["login"]);
 		$obj_status=array();
 		foreach ($this->getSelectedColumns() as $c)
@@ -254,7 +262,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 						}
 					}
 $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l'objet à coté du statut général
-					if($data['status'] != LP_STATUS_COMPLETED_NUM)
+					if($data['status'] != ilLpStatus::LP_STATUS_COMPLETED_NUM) 
 					{
 						$timing = $this->showTimingsWarning($this->ref_ids[$obj_id], $a_set["usr_id"]);
 						if($timing)
@@ -302,7 +310,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row) // VINCENT SAYAH
+	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row): void // VINCENT SAYAH
 	{
 		global $ilObjDataCache;
 		
@@ -318,7 +326,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set) // VINCENT SAYAH
+	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set): void // VINCENT SAYAH
 	{
 		//$worksheet->write($a_row, 0, $a_set["login"]);
 		$a_excel->setCell($a_row, 0, $a_set["login"]); // VINCENT SAYAH
@@ -334,7 +342,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 				case "status_changed":
 					$val = $this->parseValue($c, $a_set[$c], "user");
 					break;
-					
+/*					
 				case (substr($c, 0, 4) == "obj_"):
 					$obj_id = substr($c, 4);
 					$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
@@ -345,7 +353,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 					$obj_id = $c;
 					$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
 					break;
-					
+*/					
 				case (substr($c, 0, 8) == "objdisc_"):
 					$obj_id = substr($c, 8);
 					$data = $a_set["disc"][$obj_id];
@@ -358,7 +366,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillHeaderCSV($a_csv)
+	protected function fillHeaderCSV($a_csv): void
 	{
 		global $ilObjDataCache;
 		
@@ -373,8 +381,12 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		$a_csv->addRow();
 	}
 
-	protected function fillRowCSV($a_csv, $a_set)
+	protected function fillRowCSV($a_csv, $a_set): void
 	{
+	global $ilLog;
+/*	foreach ($a_set as $k => $v){
+//	$ilLog->write("clé =".$k." | ".gettype($a_set[$k])." | ".$v);
+	}*/
 		$a_csv->addColumn($a_set["login"]);
 
 		include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
@@ -389,17 +401,17 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 					$val = $this->parseValue($c, $a_set[$c], "user");
 					break;
 					
-				case (substr($c, 0, 4) == "obj_"):
+/*				case (substr($c, 0, 4) == "obj_"):
 					$obj_id = substr($c, 4);
-					$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
+				//	$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
 					break;
 				
 				case (substr($c, 0, 6) == "objtv_"):
 				case (substr($c, 0, 7) == "objsco_"):
 					$obj_id = $c;
-					$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
+				//	$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set["objects"][$obj_id]["status"]);
 					break;
-	
+*/	
 				case (substr($c, 0, 8) == "objdisc_"):
 					$obj_id = substr($c, 8);
 					$data = $a_set["disc"][$obj_id];

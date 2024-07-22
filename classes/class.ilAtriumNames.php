@@ -16,11 +16,11 @@ class ilAtriumNames
 	 * @param
 	 * @return
 	 */
-	function parseFile($a_file, $a_obj_id)
+	function parseFile($a_file, $a_obj_id): void
 	{
-		global $ilDB;
+		global $ilDB, $ilLog;
 		
-		$tmp_file = ilUtil::ilTempnam();
+		$tmp_file = ilFileUtils::ilTempnam();
 		move_uploaded_file($a_file, $tmp_file);
 		
 		if (is_file($tmp_file))
@@ -30,10 +30,13 @@ class ilAtriumNames
 			$content = file_get_contents($tmp_file);
 
 			$lines = explode("\n", $content);
+
 			foreach ($lines as $line)
 			{
+			if ($line!=""){
 				$line = trim($line);
 				$fields = explode(";", $line);
+				$ilLog->write("avant remplissage table ".$line." ; ".trim($fields[0])." ; ".trim($fields[1]));
 				$key = trim($fields[0]);
 				$val = trim($fields[1]);
 				
@@ -47,6 +50,7 @@ class ilAtriumNames
 						")");
 				}
 			}
+			}
 			unlink($tmp_file);
 		}
 	}
@@ -59,15 +63,15 @@ class ilAtriumNames
 	 */
 	static function lookup($a_key, $a_obj_id)
 	{
-		global $ilDB;
+		global $ilDB, $ilLog;
 		
 		$set = $ilDB->query("SELECT * FROM rep_robj_xatr_md_name ".
 			" WHERE name_id = ".$ilDB->quote($a_key, "text").
 			" AND obj_id = ".$ilDB->quote($a_obj_id, "integer")
 			);
 		$rec = $ilDB->fetchAssoc($set);
-
-		if ($rec["name"] != "")
+		
+		if ($rec != NULL)
 		{
 			return $rec["name"];
 		}

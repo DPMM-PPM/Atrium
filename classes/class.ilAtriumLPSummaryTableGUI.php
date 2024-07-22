@@ -60,14 +60,14 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$this->setFormAction($ilCtrl->getFormActionByClass(get_class($this)));
 		$this->setRowTemplate("tpl.trac_summary_row.html", "Services/Tracking");
 		
-		$this->getItems($a_parent_obj->object->getId(), $a_ref_id);
+		$this->getItems($a_parent_obj->getId(), $a_ref_id);
 		
 		$this->anonymized = (bool)!ilObjUserTracking::_enabledUserRelatedData();
 	}
 
-	function getSelectableColumns()
+	function getSelectableColumns(): array
 	{
-		global $lng, $ilSetting;
+		global $lng, $ilSetting, $ilLog;
 
 		$lng_map = array("user_total" => "users", "first_access_min" => "trac_first_access",
 			"last_access_max" => "trac_last_access", "status" => "trac_status",
@@ -106,8 +106,10 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		
 		// do not show status if learning progress is deactivated
 		include_once("./Services/Tracking/classes/class.ilLPObjSettings.php");
-		$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
-		if($mode != LP_MODE_DEACTIVATED && $mode != LP_MODE_LP_MODE_UNDEFINED)
+		//$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
+		$mode=1; // Ajouté car l'objet CBT n'a pas d'option de configuration, le mode n'est donc pas présent dans table ut_lp_settings
+		
+		if($mode != ilLPObjSettings::LP_MODE_DEACTIVATED && $mode != ilLPObjSettings::LP_MODE_UNDEFINED)
 		{		
 			$all[] = "status";
 			$all[] = 'status_changed_max';
@@ -181,13 +183,13 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	/**
 	* Init filter
 	*/
-	function initFilter()
+	function initFilter(): void
 	{
 		global $lng, $ilSetting;
 		
 		if($this->ref_id == ROOT_FOLDER_ID)
 		{
-			return parent::initFilter(true, false);
+			parent::initFilter(true, false);
 		}
 		
 		// show only if extended data was activated in lp settings
@@ -219,14 +221,14 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 
 		// do not show status if learning progress is deactivated
 		$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
-		if($mode != LP_MODE_DEACTIVATED && $mode != LP_MODE_LP_MODE_UNDEFINED)
+		if($mode !=ilLPObjSettings::LP_MODE_DEACTIVATED && $mode !=ilLPObjSettings::LP_MODE_UNDEFINED)
 		{		
 			include_once "Services/Tracking/classes/class.ilLPStatus.php";
 			$item = $this->addFilterItemByMetaType("status", ilTable2GUI::FILTER_SELECT, true);
 			$item->setOptions(array("" => $lng->txt("trac_all"),
-				LP_STATUS_NOT_ATTEMPTED_NUM+1 => $lng->txt(LP_STATUS_NOT_ATTEMPTED),
-				LP_STATUS_IN_PROGRESS_NUM+1 => $lng->txt(LP_STATUS_IN_PROGRESS),
-				LP_STATUS_COMPLETED_NUM+1 => $lng->txt(LP_STATUS_COMPLETED)));
+				ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM+1 => $lng->txt(LP_STATUS_NOT_ATTEMPTED),
+				ilLPStatus::LP_STATUS_IN_PROGRESS_NUM+1 => $lng->txt(LP_STATUS_IN_PROGRESS),
+				ilLPStatus::LP_STATUS_COMPLETED_NUM+1 => $lng->txt(LP_STATUS_COMPLETED)));
 			$this->filter["status"] = $item->getValue();
 			if($this->filter["status"])
 			{
@@ -287,11 +289,11 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$this->filter["registration"] = $item->getDate();
 	}
 
-	function getSelCountryCodes()
+	function getSelCountryCodes(): array
 	{
 		global $lng;
 		
-		include_once("./Services/Utilities/classes/class.ilCountry.php");
+		include_once("./Services/User/Country/class.ilCountry.php");
 		$options = array();
 		foreach (ilCountry::getCountryCodes() as $c)
 		{
@@ -342,13 +344,14 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 		include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
 		//$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM, LP_STATUS_FAILED_NUM);
-		$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM);
+		$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM);
 		$status_map = array();			
 		foreach($valid_status as $status)
 		{
-			$path = ilLearningProgressBaseGUI::_getImagePathForStatus($status);
+			$stat = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SHORT);
+			$path = $stat->getImagePathForStatus($status);
 			$text = ilLearningProgressBaseGUI::_getStatusText($status);
-			$status_map[$status] = ilUtil::img($path, $text);
+			$status_map[$status] = '<img class="icon custom small" src="'.$path.'" />' ; //ilUtil::img($path, $text);
 		}
 		
 		// language map
@@ -387,7 +390,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 				// null is cast to ""
 				if($status_code === "" || !in_array($status_code, $valid_status))
 				{
-					$result["status"][LP_STATUS_NOT_ATTEMPTED_NUM] += $status_counter;
+					$result["status"][ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM] += $status_counter;
 					unset($result["status"][$status_code]);
 				}
 			}
@@ -485,7 +488,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	 * @param	array	$value_map	labels for values
 	 * @return	array
 	 */
-	protected function getItemsPercentagesStatus(array $data = NULL, $overall, array $value_map = NULL)
+	protected function getItemsPercentagesStatus(array $data = NULL, $overall, array $value_map = NULL): array
 	{
 		global $lng;
 
@@ -509,7 +512,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		return $result;
 	}
 
-	protected function parseValue($id, $value, $type)
+	protected function parseValue($id, $value, $type): string
 	{
 		global $lng;
 		
@@ -588,11 +591,11 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	/**
 	 * Fill table row
 	 */
-	protected function fillRow($a_set)
+	protected function fillRow($a_set): void
 	{
 		global $lng, $ilCtrl;
 		
-		$this->tpl->setVariable("ICON", ilObject::_getIcon("", "tiny", $a_set["type"]));
+		$this->tpl->setVariable("ICON", ilObject::_getIcon(0, "tiny", $a_set["type"]));
 		$this->tpl->setVariable("ICON_ALT", $lng->txt($a_set["type"]));
 	    $this->tpl->setVariable("TITLE", $a_set["title"]);
 
@@ -669,7 +672,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		}
 	}
 
-	protected function renderPercentages($id, $data)
+	protected function renderPercentages($id, $data): void
 	{
 		if($data)
 		{
@@ -688,7 +691,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		}
 	}
 
-	protected function isArrayColumn($a_name)
+	protected function isArrayColumn($a_name): bool
 	{
 		if(in_array($a_name, array("country", "gender", "city", "language", "status", "mark")))
 		{
@@ -697,7 +700,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		return false;
 	}
 	
-	public function numericOrdering($a_field)
+	public function numericOrdering($a_field): bool
 	{
 		$pos = strrpos($a_field, "_");
 		if($pos !== false)
@@ -711,7 +714,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		return false;
 	}
 
-	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row) // VINCENT SAYAH
+	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row): void // VINCENT SAYAH
 	{
 		//$worksheet->write($a_row, 0, $this->lng->txt("title"));
 		$a_excel->setBold($a_row, 0, $this->lng->txt("title")); //VINCENT SAYAH
@@ -766,7 +769,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 					include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 					include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
 //					$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM, LP_STATUS_FAILED_NUM);
-					$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM);
+					$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM);
 					$cnt--;
 					foreach($valid_status as $status)
 					{
@@ -782,7 +785,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		}
 	}
 
-	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set) // VINCENT SAYAH
+	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set): void // VINCENT SAYAH
 	{
 		//$worksheet->write($a_row, 0, $a_set["title"]);
 		$a_excel->setCell($a_row, 0, $a_set["title"]); // VINCENT SAYAH
@@ -836,7 +839,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		}
 	}
 
-	protected function fillHeaderCSV($a_csv)
+	protected function fillHeaderCSV($a_csv): void
 	{
 		$a_csv->addColumn($this->lng->txt("title"));
 
@@ -873,7 +876,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 					// build status to image map
 					include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 					include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
-					$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM, LP_STATUS_FAILED_NUM);			
+					$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM, ilLPStatus::LP_STATUS_FAILED_NUM);			
 					foreach($valid_status as $status)
 					{
 						$text = ilLearningProgressBaseGUI::_getStatusText($status);
@@ -887,7 +890,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$a_csv->addRow();
 	}
 
-	protected function fillRowCSV($a_csv, $a_set)
+	protected function fillRowCSV($a_csv, $a_set): void
 	{
 		$a_csv->addColumn($a_set["title"]);
 
@@ -924,7 +927,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$a_csv->addRow();
 	}
 	
-	function isPercentageAvailable($a_obj_id) // VINCENT SAYAH
+	function isPercentageAvailable($a_obj_id): bool // VINCENT SAYAH
 	{
 		return true;
 	}

@@ -23,7 +23,7 @@ public static function hex2str($hex) {
 	 * @param
 	 * @return
 	 */
-	function decrypt($a_score_encrypted)
+	public static function decrypt($a_score_encrypted)
 	{
 		// score will not be encrypted anymore
 		return $a_score_encrypted;
@@ -42,7 +42,7 @@ public static function hex2str($hex) {
 	 *
 	 * @return array array of user ids (integer)
 	 */
-	public static function lookupUsersForMatriculation($a_mat)
+	public static function lookupUsersForMatriculation($a_mat): array
 	{
 		global $ilDB;
 		
@@ -64,7 +64,7 @@ public static function hex2str($hex) {
 	 * @param
 	 * @return
 	 */
-	function getDatetime($a_tracking_date)
+	public static function getDatetime($a_tracking_date)
 	{
 		$dt = null;
 		if ($a_tracking_date != "")

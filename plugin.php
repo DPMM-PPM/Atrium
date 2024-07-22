@@ -4,11 +4,13 @@
 $id = "xatr";
  
 // code version; must be changed for all code changes
-$version = "2.0.1";
+
+$version = "3.0";
 /*
-version 2.0.1 => modification du composer.json pour prise en compte de l'autoload des classes à partir de la version 7.26 d'ILIAS
-version 2.0.0 => changement de la méthode de cryptage suite à l'abandon de mcrypt par php
-		 affichage de l'alerte en cas de tri sur la colonne 'moyenne'
+version 3.0 => mise en conformitÃ© ILIAS Version 8.12 et php version 8.3.8
+version 2.0.2 => correction de bug dans l'affichage de la progression en vue Matrice.
+version 2.0.1 => modification du composer.json pour prise en compte de l'autoload des classes Ã  partir de la version 7.26 d'ILIAS. Correction de bugs sur un affichage d'alerte en cas de tri sur la colonne 'moyenne'
+version 2.0.0 => changement de la mÃ©thode de cryptage suite Ã  l'abandon de mcrypt par php. 
 version 1.0.0 => correctif classe excel sur V5.3 - correction sur le calcul de la moyenne - présentation de la progression
 version 0.0.45=> mise en conformite 5.3 et php 7.1 - ticket mantis nmr 0000180
 version 0.0.44=> mise en conformité 5.2 - Adaptation des class class.ilAtriumLPMatrixTableGUI, class.ilAtriumLPSummaryTableGUI et class.ilAtriumLPUsersTableGUI avec phpexcel
@@ -20,11 +22,12 @@ Mise en commentaire de la balise echo ligne 439 du fichier classe.ilAtriumTracki
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
-$ilias_min_version = "5.2.0";
-$ilias_max_version = "5.99.999";
+
+$ilias_min_version = "8.12.0";
+$ilias_max_version = "8.99.999";
  
 // optional, but useful: Add one or more responsible persons and a contact email
-$responsible = "Alexander Killing";
-$responsible_mail = "killing at leifos.com";
+$responsible = "Jean-Paul MANIGAND";
+$responsible_mail = "jean-paul.manigand@intradef.defense.gouv.fr";
 $learning_progress = true;
 ?>

@@ -546,10 +546,10 @@ class ilFormat
 	 * @param ilLanguage $a_lng
 	 * @return string
 	 */
-	function _secondsToString($seconds, $force_with_seconds = false, $a_lng = null)
+	static function _secondsToString($seconds, $force_with_seconds = false, $a_lng = null)
 	{
 		global $lng;
-
+$message="";
 		if($a_lng)
 		{
 			$lng = $a_lng;

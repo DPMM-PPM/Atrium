@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once "./Services/Repository/classes/class.ilObjectPluginListGUI.php";
+include_once "./Services/Repository/PluginSlot/class.ilObjectPluginListGUI.php";
 
 /**
  * ListGUI implementation for Atrium object plugin. This one
@@ -20,7 +20,7 @@ class ilObjAtriumListGUI extends ilObjectPluginListGUI
 	/**
 	* Init type
 	*/
-	function initType()
+	function initType(): void
 	{
 		$this->setType("xatr");
 	}
@@ -28,7 +28,7 @@ class ilObjAtriumListGUI extends ilObjectPluginListGUI
 	/**
 	* Get name of gui class handling the commands
 	*/
-	function getGuiClass()
+	function getGuiClass(): string
 	{
 		return "ilObjAtriumGUI";
 	}
@@ -36,7 +36,7 @@ class ilObjAtriumListGUI extends ilObjectPluginListGUI
 	/**
 	* Get commands
 	*/
-	function initCommands()
+	function initCommands(): array
 	{
 		return array
 		(
@@ -60,13 +60,15 @@ class ilObjAtriumListGUI extends ilObjectPluginListGUI
 	*						"property" (string) => property name
 	*						"value" (string) => property value
 	*/
-	function getProperties()
+	function getProperties(): array
 	{
+	include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilObjAtriumAccess.php");
+	             
 		global $lng, $ilUser;
 
 		$props = array();
 		
-		$this->plugin->includeClass("class.ilObjAtriumAccess.php");
+//		$this->plugin->includeClass("class.ilObjAtriumAccess.php");
 		if (!ilObjAtriumAccess::checkOnline($this->obj_id))
 		{
 			$props[] = array("alert" => true, "property" => $this->txt("status"),
