@@ -4,6 +4,7 @@
 $id = "xatr";
  
 // code version; must be changed for all code changes
+
 $version = "3.0";
 /*
 version 3.0 => mise en conformitÃ© ILIAS Version 8.12 et php version 8.3.8
@@ -21,6 +22,7 @@ Mise en commentaire de la balise echo ligne 439 du fichier classe.ilAtriumTracki
  
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
+
 $ilias_min_version = "8.12.0";
 $ilias_max_version = "8.99.999";
  
