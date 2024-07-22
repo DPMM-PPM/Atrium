@@ -173,14 +173,14 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 
 		// $this->determineOffsetAndOrder();
 		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
-		$ilLog->write("avant getobjectIds ".$this->obj_id." ".$this->ref_id);
+		//$ilLog->write("avant getobjectIds ".$this->obj_id." ".$this->ref_id);
 		$collection = ilTrQuery::getObjectIds($this->obj_id, $this->ref_id, true);
 		if($collection["object_ids"])
 		{
 			// we need these for the timing warnings
 			$this->ref_ids = $collection["ref_ids"];
 			foreach($collection["object_ids"] as $k => $val){
-			$ilLog->write("dans foreach ".$k." ".$val);}
+			//$ilLog->write("dans foreach ".$k." ".$val);}
 			$data = ilTrQuery::getUserObjectMatrix($this->ref_id, $collection["object_ids"], $this->filter["name"],NULL,array(),NULL);
 			if($collection["objectives_parent_id"] && $data["users"])
 			{
@@ -228,7 +228,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 	function fillRow($a_set): void // VINCENT SAYAH
 	{
 	global $ilLog;
-	$ilLog->write("dans fillRow +++++++++++++++++++++++++++++++++++++++9+++++");
+	
 		$this->tpl->setVariable("VAL_LOGIN", $a_set["login"]);
 		$obj_status=array();
 		foreach ($this->getSelectedColumns() as $c)
@@ -262,7 +262,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 						}
 					}
 $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l'objet à coté du statut général
-					if($data['status'] != 2) //+++++++++++++++++++ Rempolacement de la constante par 2
+					if($data['status'] != ilLPStatus::LP_STATUS_COMPLETED_NUM) 
 					{
 						$timing = $this->showTimingsWarning($this->ref_ids[$obj_id], $a_set["usr_id"]);
 						if($timing)
