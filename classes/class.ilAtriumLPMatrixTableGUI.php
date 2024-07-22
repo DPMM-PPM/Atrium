@@ -254,7 +254,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 						}
 					}
 $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l'objet à coté du statut général
-					if($data['status'] != ilLPStatus::LP_STATUS_COMPLETED_NUM)
+					if($data['status'] != ilLpStatus::LP_STATUS_COMPLETED_NUM)
 					{
 						$timing = $this->showTimingsWarning($this->ref_ids[$obj_id], $a_set["usr_id"]);
 						if($timing)
