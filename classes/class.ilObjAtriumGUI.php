@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/PluginSlot/class.ilObjectPluginGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Repository/PluginSlot/class.ilObjectPluginGUI.php");
 
 /**
  * User Interface class for Atrium repository object.
@@ -42,8 +42,14 @@ class ilObjAtriumGUI extends ilObjectPluginGUI
 	{
 		return "xatr";
 	}
-public function getId(){return $this->object->getId();}
-public function getTitle(){return $this->object->getTitle();}
+	public function getId(){
+		return $this->object->getId();
+	}
+
+	public function getTitle(){
+		return $this->object->getTitle();
+	}
+
 	/**
 	* Handles all commmands of this class, centralizes permission checks
 	*/
@@ -51,14 +57,13 @@ public function getTitle(){return $this->object->getTitle();}
 	{
 	
 		global $ilCtrl, $ilUser, $ilTabs, $tpl;
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtrUtil.php");
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUsersTableGUI.php");
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPMatrixTableGUI.php");
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPSummaryTableGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtrUtil.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUsersTableGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPMatrixTableGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPSummaryTableGUI.php");
 		
 		
 		$next_class = $ilCtrl->getNextClass($this);
-//$next_class = $class ?? $this->ctrl->getNextClass();
 		
 		$tpl->setDescription($this->object->getDescription());
 
@@ -66,8 +71,6 @@ public function getTitle(){return $this->object->getTitle();}
 		{
 			case "ilatriumlpuserstablegui":
 				$this->checkPermission("write");
-				//$this->ctrl->setParameter($this, "details_id", $this->details_id);
-				//$this->plugin->includeClass("class.ilAtriumLPUsersTableGUI.php");
 			    $table_gui = new ilAtriumLPUsersTableGUI($this, "showLPUsers",
 			    	$this->object->getId(), $this->object->getRefId(), $this->plugin);
 				$ilCtrl->forwardCommand($table_gui);
@@ -75,8 +78,6 @@ public function getTitle(){return $this->object->getTitle();}
 				
 			case "ilatriumlpmatrixtablegui":
 				$this->checkPermission("write");
-				//$this->ctrl->setParameter($this, "details_id", $this->details_id);
-				//$this->plugin->includeClass("class.ilAtriumLPMatrixTableGUI.php");
 			    $table_gui = new ilAtriumLPMatrixTableGUI($this, "showLPMatrix",
 			    	$this->object->getRefId(), $this->plugin);
 				$ilCtrl->forwardCommand($table_gui);
@@ -84,8 +85,6 @@ public function getTitle(){return $this->object->getTitle();}
 				
 			case "ilatriumlpsummarytablegui":
 				$this->checkPermission("write");
-				//$this->ctrl->setParameter($this, "details_id", $this->details_id);
-				//$this->plugin->includeClass("class.ilAtriumLPSummaryTableGUI.php");
 			    $table_gui = new ilAtriumLPSummaryTableGUI($this, "showLPSummary",
 			    	$this->object->getRefId(), $this->plugin);
 				$ilCtrl->forwardCommand($table_gui);
@@ -171,14 +170,6 @@ public function getTitle(){return $this->object->getTitle();}
 		}
 
 		// learning progress
-/*		include_once './Services/Tracking/classes/class.ilLearningProgressAccess.php';
-		if (ilLearningProgressAccess::checkAccess($this->object->getRefId(), $is_participant))
-		{
-			$ilTabs->addTab('learning_progress', $lng->txt("learning_progress"),
-				$ilCtrl->getLinkTargetByClass(array('ilobjatriumgui','illearningprogressgui'),'')
-			);
-		}
-*/
 		
 		if ($ilAccess->checkAccess("write", "", $_GET["ref_id"]))
 		{
@@ -258,7 +249,7 @@ public function getTitle(){return $this->object->getTitle();}
 	
 		global $ilCtrl;
 	
-		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Form/classes/class.ilPropertyFormGUI.php");
 		$this->form = new ilPropertyFormGUI();
 	
 		// title
@@ -377,7 +368,7 @@ public function getTitle(){return $this->object->getTitle();}
 	{
 		global $lng, $ilCtrl;
 	
-		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 
 		// lp file
@@ -443,13 +434,11 @@ public function getTitle(){return $this->object->getTitle();}
 	function showLPUsers()
 	{
 		global $tpl, $ilLog;
-//	$ilLog->write("dans showLPUsers");
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUsersTableGUI.php");		
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUsersTableGUI.php");		
 		$this->setLPSubTabs("lp_users");
 		
 		$table = new ilAtriumLPUsersTableGUI($this, "showLPUsers", $this->object->getId(),
 			$this->object->getRefId(), $this->plugin);
-//	$ilLog->write("dans showLPUsers avant setcontent");	
 		$tpl->setContent($table->getHTML());
 	}
 
@@ -462,7 +451,7 @@ public function getTitle(){return $this->object->getTitle();}
 	function showLPUserDetails()
 	{
 		global $tpl, $ilCtrl, $ilToolbar, $lng, $ilAccess, $ilUser, $ilTabs;
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUserDetailsTableGUI.php");		
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPUserDetailsTableGUI.php");		
 
 		if ($ilAccess->checkAccess("write", "", $_GET["ref_id"]))
 		{
@@ -484,8 +473,6 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 		$ilToolbar->addButton($this->plugin->txt("export_excel"),
 			$ilCtrl->getLinkTarget($this, "exportUserDetailsExcel"));
 
-		
-//		$this->plugin->includeClass("class.ilAtriumLPUserDetailsTableGUI.php");
 		$table = new ilAtriumLPUserDetailsTableGUI($this, "showLPUserDetails", $this->plugin, $user);
 		
 		$tpl->setContent($table->getHTML());		
@@ -500,8 +487,8 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	function showLPUserDiscDetails()
 	{
 		global $tpl, $ilToolbar, $lng, $ilCtrl, $ilAccess, $ilUser, $ilTabs, $ilLog;
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 		$ilCtrl->saveParameter($this, array("user_id"));
 		
 		$ilToolbar->addButton($lng->txt("back"),
@@ -547,7 +534,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 					$status = 0;
 					$det_tpl->setCurrentBlock("row");
 					$det_tpl->setVariable("MOD_TITLE", ilAtriumNames::lookup($test[0], $this->object->getId()));
-					$det_tpl->setVariable("MOD_IMG", ilUtil::getImagePath("icon_lm.svg"));
+					$det_tpl->setVariable("MOD_IMG", ilUtil::getImagePath("/standard/icon_lm.svg"));
 					$det_tpl->setVariable($mode."_DATE", $test[2] ? $test[2] : "-");
 					if ($test[5] != 99)
 					{
@@ -596,7 +583,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 						reset($modes["FINAL"]);
 					}
 					$lng->loadLanguageModule("trac");
-					include_once("./Services/Tracking/classes/status/class.ilLPStatusIcons.php");
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/status/class.ilLPStatusIcons.php");
 					$stat = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_LONG);
 					$path = $stat->getImagePathForStatus($status);
 					$text = ilLearningProgressBaseGUI::_getStatusText($status);
@@ -639,7 +626,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 		global $tpl;
 
 		$this->setLPSubTabs("lp_matrix");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPMatrixTableGUI.php");		
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPMatrixTableGUI.php");		
 //		$this->plugin->includeClass("class.ilAtriumLPMatrixTableGUI.php");
 		$table = new ilAtriumLPMatrixTableGUI($this, "showLPMatrix", $this->object->getRefId(), $this->plugin);
 		
@@ -656,7 +643,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	function showLPSummary()
 	{
 		global $tpl;
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPSummaryTableGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumLPSummaryTableGUI.php");
 		$this->setLPSubTabs("lp_summary");
 		
 //		$this->plugin->includeClass("class.ilAtriumLPSummaryTableGUI.php");
@@ -674,7 +661,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	{
 		global $tpl;
 		
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNamesTableGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNamesTableGUI.php");
 		$table = new ilAtriumNamesTableGUI($this, "editNames", $this->plugin, $this->object->getId());
 		
 		$form = $this->initNamesForm();
@@ -691,7 +678,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 		
 		$ilTabs->activateTab("names");
 		
-		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		
 		// Import CSV names file
@@ -716,7 +703,7 @@ include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/
 	public function saveNames()
 	{
 		global $tpl, $lng, $ilCtrl;
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");	
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");	
 		$form = $this->initNamesForm();
 		if ($form->checkInput())
 		{

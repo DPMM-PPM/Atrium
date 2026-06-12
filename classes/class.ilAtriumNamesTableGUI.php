@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Table/classes/class.ilTable2GUI.php");
 
 /**
  * TableGUI class for discipline/module names
@@ -18,7 +18,7 @@ class ilAtriumNamesTableGUI extends ilTable2GUI
 	function __construct($a_parent_obj, $a_parent_cmd, $a_plugin, $a_obj_id)
 	{
 		global $ilCtrl, $lng, $ilAccess, $lng;
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
 		$this->pl = $a_plugin;
 		$this->obj_id = $a_obj_id;
 		//$this->pl->includeClass("class.ilAtriumNames.php");
