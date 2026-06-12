@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 Leifos GmbH GPL2 */
  
-require_once 'Services/Exceptions/classes/class.ilException.php'; 
+require_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/Exceptions/classes/class.ilException.php'; 
  
 /** 
  * Atrium exception class 
