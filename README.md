@@ -19,6 +19,16 @@ Installation
 
 Il n'y a pas d'écran de configuration pour ce plugin
 
+Tests
+-----
+Une fois le plugin installé et activé, il faut créer un objet CBT dans un cours.
+Créer un utilisateur avec le matricule 123456 et l'inscrire dans le cours qui contient le CBT.
+
+Le dossier 'test' contient plusieurs fichiers permettant de tester le bon fonctionnement du plugin.
+Les codes session et clé de décryptage demandés lors de la création d'un CBT sont dans le fichier cle&code_session.txt
+Le fichier de définition du parcours (extension csv) doit être entré dans l'onglet 'Définition du parcours'
+Le fichier de données (extension mpj) doit être entré dans l'onglet 'Transmettre les données'. Dès son upload, il est décrypté et décodé et des données de progression doivent apparaitre dans l'onglet progression.
+
 Usage
 -----
 Ce plugin permet de créer un objet de type CBT dans ILIAS.
@@ -53,3 +63,7 @@ Version 2.0 (2023-07-24)
   
 Version 3.0 (2024-07-19)
 * Compatibility with ILIAS 8
+
+Version 4.0 (11-06-2026)
+* Compatibilité ILIAS 10.5
+* Suppression de la bibliothèque phpseclib3

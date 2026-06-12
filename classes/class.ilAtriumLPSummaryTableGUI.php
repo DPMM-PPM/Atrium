@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPTableBaseGUI.php");
 
 /**
  * summary lp table
@@ -17,7 +17,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	 */
 	function __construct($a_parent_obj, $a_parent_cmd, $a_ref_id, $a_plugin, $a_print_mode = false)
 	{
-		global $ilCtrl, $lng, $ilAccess, $lng;
+		global $ilCtrl, $lng, $ilAccess, $lng, $ilLog;
 
 		$this->setId("atrsmy");
 		
@@ -26,7 +26,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$this->plugin = $a_plugin;
 		$this->ref_id = $a_ref_id;
 		$this->obj_id = ilObject::_lookupObjId($a_ref_id);
-
+			
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 
 		if($a_print_mode)
@@ -54,14 +54,13 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 			$this->addColumn($this->lng->txt("action"));
 		}
 		$this->initFilter();
-
-		// $this->setExternalSorting(true);
+		
 		$this->setEnableHeader(true);
 		$this->setFormAction($ilCtrl->getFormActionByClass(get_class($this)));
-		$this->setRowTemplate("tpl.trac_summary_row.html", "Services/Tracking");
-		
+		$this->setRowTemplate("tpl.trac_summary_row.html", "components/ILIAS/Tracking");
+			
 		$this->getItems($a_parent_obj->getId(), $a_ref_id);
-		
+			
 		$this->anonymized = (bool)!ilObjUserTracking::_enabledUserRelatedData();
 	}
 
@@ -82,7 +81,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$default = array();
 
 		// show only if extended data was activated in lp settings
-		include_once 'Services/Tracking/classes/class.ilObjUserTracking.php';
+		include_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/Tracking/classes/class.ilObjUserTracking.php';
 		$tracking = new ilObjUserTracking();
 		if($tracking->hasExtendedData(ilObjUserTracking::EXTENDED_DATA_READ_COUNT))
 		{
@@ -99,14 +98,13 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 			$tracking->hasExtendedData(ilObjUserTracking::EXTENDED_DATA_SPENT_SECONDS))
 		{
 			$all[] = "read_count_spent_seconds_avg";
-			// $default[] = "read_count_spent_seconds_avg";
 		}
 
 		$all[] = "percentage_avg";
 		
 		// do not show status if learning progress is deactivated
-		include_once("./Services/Tracking/classes/class.ilLPObjSettings.php");
-		//$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPObjSettings.php");
+		
 		$mode=1; // Ajouté car l'objet CBT n'a pas d'option de configuration, le mode n'est donc pas présent dans table ut_lp_settings
 		
 		if($mode != ilLPObjSettings::LP_MODE_DEACTIVATED && $mode != ilLPObjSettings::LP_MODE_UNDEFINED)
@@ -193,7 +191,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		}
 		
 		// show only if extended data was activated in lp settings
-		include_once 'Services/Tracking/classes/class.ilObjUserTracking.php';
+		include_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/Tracking/classes/class.ilObjUserTracking.php';
 		$tracking = new ilObjUserTracking();
 
 		$item = $this->addFilterItemByMetaType("user_total", ilTable2GUI::FILTER_NUMBER_RANGE, true,
@@ -223,7 +221,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 		$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
 		if($mode !=ilLPObjSettings::LP_MODE_DEACTIVATED && $mode !=ilLPObjSettings::LP_MODE_UNDEFINED)
 		{		
-			include_once "Services/Tracking/classes/class.ilLPStatus.php";
+			include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php";
 			$item = $this->addFilterItemByMetaType("status", ilTable2GUI::FILTER_SELECT, true);
 			$item->setOptions(array("" => $lng->txt("trac_all"),
 				ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM+1 => $lng->txt(LP_STATUS_NOT_ATTEMPTED),
@@ -293,7 +291,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	{
 		global $lng;
 		
-		include_once("./Services/User/Country/class.ilCountry.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/User/classes/Country/class.ilCountry.php");
 		$options = array();
 		foreach (ilCountry::getCountryCodes() as $c)
 		{
@@ -313,7 +311,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 	{
 		global $lng;
 
-		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilTrQuery.php");
 
 		$preselected_obj_ids = $filter = NULL;
 		if($this->ref_id == ROOT_FOLDER_ID)
@@ -341,9 +339,8 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 				);
 		
 		// build status to image map
-		include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
-		include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
-		//$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM, LP_STATUS_FAILED_NUM);
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php");			
 		$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM);
 		$status_map = array();			
 		foreach($valid_status as $status)
@@ -351,7 +348,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 			$stat = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_SHORT);
 			$path = $stat->getImagePathForStatus($status);
 			$text = ilLearningProgressBaseGUI::_getStatusText($status);
-			$status_map[$status] = '<img class="icon custom small" src="'.$path.'" />' ; //ilUtil::img($path, $text);
+			$status_map[$status] = '<img class="icon custom small" src="'.$path.'" />' ; 
 		}
 		
 		// language map
@@ -368,7 +365,7 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 			// sessions have no title
 			if($result["title"] == "" && $result["type"] == "sess")
 			{
-				include_once "Modules/Session/classes/class.ilObjSession.php";
+				include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Session/classes/class.ilObjSession.php";
 				$sess = new ilObjSession($result["obj_id"], false);
 				$data["set"][$idx]["title"] = $sess->getFirstAppointment()->appointmentToString();
 			}
@@ -555,8 +552,8 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 				}
 				else
 				{
-					//include_once("./Services/Utilities/classes/class.ilFormat.php");
-					include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilFormat.php"); // VINCENT SAYAH
+					//include_once("./components/ILIAS/Utilities/classes/class.ilFormat.php");
+					include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilFormat.php"); // VINCENT SAYAH
 					$value = ilFormat::_secondsToString($value);
 				}
 				break;
@@ -766,8 +763,8 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 				else
 				{
 					// build status to image map
-					include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
-					include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php");			
 //					$valid_status = array(LP_STATUS_NOT_ATTEMPTED_NUM, LP_STATUS_IN_PROGRESS_NUM, LP_STATUS_COMPLETED_NUM, LP_STATUS_FAILED_NUM);
 					$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM);
 					$cnt--;
@@ -874,8 +871,8 @@ class ilAtriumLPSummaryTableGUI extends ilLPTableBaseGUI
 				else
 				{
 					// build status to image map
-					include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
-					include_once("./Services/Tracking/classes/class.ilLPStatus.php");			
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php");			
 					$valid_status = array(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM, ilLPStatus::LP_STATUS_IN_PROGRESS_NUM, ilLPStatus::LP_STATUS_COMPLETED_NUM, ilLPStatus::LP_STATUS_FAILED_NUM);			
 					foreach($valid_status as $status)
 					{

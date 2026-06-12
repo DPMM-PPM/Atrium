@@ -2,14 +2,18 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/PluginSlot/class.ilObjectPlugin.php");
-include_once("./Services/Tracking/interfaces/interface.ilLPStatusPlugin.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Repository/PluginSlot/class.ilObjectPlugin.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/interfaces/interface.ilLPStatusPlugin.php");
 include_once("class.ilAtrUtil.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
-include './Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/vendor/autoload.php';
-use phpseclib3\Crypt\AES;
-use phpseclib3\Crypt\Rijndael;
-use phpseclib3\Crypt\Random;
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+//include ILIAS_ABSOLUTE_PATH.'/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/vendor/autoload.php';
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/Rijndael.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/SymmetricKey.php");
+
+
+//use phpseclib3\Crypt\AES;
+//use phpseclib3\Crypt\Rijndael;
+//use phpseclib3\Crypt\Random;
 /**
  * Application class for Atrium repository object.
  *
@@ -185,8 +189,8 @@ private $online;
 	 */
 	function processLPFile($a_file, $a_tutor = false)
 	{
-	include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/exceptions/class.ilAtriumException.php");
-		$rinj = new \phpseclib3\Crypt\Rijndael('ecb');
+	include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/exceptions/class.ilAtriumException.php");
+		$rinj = new Rijndael('ecb');
 		$rinj->setKey($this->getCbtKey());
 		$rinj->disablePadding();
 
@@ -200,30 +204,23 @@ private $online;
 		
 		$content = file_get_contents($a_file["tmp_name"]);
 		unlink($a_file["tmp_name"]);
-//$ilLog->write("+++++++++++++++++++++++++");
+$ilLog->write("+++++++++++++++++++++++++");
 //$ilLog->write("content : ".$content);//echo ("<script>console.log('test')</script>");//"avant décryptage, \$content est en : .mb_detect_encoding($content)."<br>";
 		if ($content == "")
 		{
 			throw new ilAtriumException($this->plugin->txt("no_content_found"));
 		}
-		/* cryptage en rijndael128 ------------------------------------------------------------------------*/
-		//$json_string = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->getCbtKey(),	ilAtrUtil::hex2str($content), MCRYPT_MODE_ECB));
-		$json_string = trim($rinj->decrypt(ilAtrUtil::hex2str($content)));
-//$ilLog->write("json_string : ".$json_string);		
-		//echo "après decryptage php, \$json_string est en : ".mb_detect_encoding($json_string)."<br>";
-		/* cryptage en rijndael 256  ------------------------------------------------------------------------	
-		$json_string = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $this->getCbtKey(), $content, MCRYPT_MODE_ECB));
-		/*---------------------------------------------------------------------------------------------------------*/
+
+$cipherText = hex2bin($content);
+
+$json_string = trim($rinj->decrypt(hex2bin($content)));
 		if ($json_string == "")
 		{
 			throw new ilAtriumException($this->plugin->txt("could_not_decrypt_file_content"));
 		}
-//echo $json_string."<br>";
-//echo ("<script>console.log($json_string)</script>");
+
 		$lp = json_decode($json_string);
-//$ilLog->write("après json_decodelp");
-//echo "last_error_msg ".json_last_error()."<br>";
-//echo "lp".$lp;
+
 		if ($lp == null)
 		{
 			throw new ilAtriumException($this->plugin->txt("could_not_decode_file_content"));
@@ -264,30 +261,28 @@ private $online;
 			}
 			$user_id = $user_ids[0];
 		}
-$ilLog->write("status avant save = ".$this->getLPStatusForUser($user_id));
-$status_pre_save = $this->getLPStatusForUser($user_id);
+		
+		$status_pre_save = $this->getLPStatusForUser($user_id);
 		// parse and save tracking data
-		//$this->plugin->includeClass("class.ilAtriumTrackingData.php");
+
 		$track = new ilAtriumTrackingData($this->getId(), $user_id);
-//$ilLog->write("objet TrackingData créé");
+
 		$track->parse($lp);
-//$ilLog->write("après parse");
+
 		$track->save();
-//$ilLog->write("après save");
+
 		// update read event
-		include_once("./Services/Tracking/classes/class.ilChangeEvent.php");
-$ilLog->write("variables change event :".$this->getType()." | ".$this->getRefId()." | ".$this->getId()." | ".$user_id." | ".$track->getTotalConnections()." | ".$track->getTotalTime());
-$ilLog->write("status = ".$this->getLPStatusForUser($user_id));
-if ($status_pre_save==0){
-ilChangeEvent::_recordReadEvent($this->getType(),
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilChangeEvent.php");
+		
+		if ($status_pre_save==0){
+			ilChangeEvent::_recordReadEvent($this->getType(),
 			$this->getRefId(), $this->getId(), $user_id,
 			true, null, $track->getTotalTime());
 }
 		ilChangeEvent::_recordReadEvent($this->getType(),
 			$this->getRefId(), $this->getId(), $user_id,
 			true, $track->getTotalConnections(), $track->getTotalTime());
-
-//$ilLog->write("après event");		
+	
 		// hack first access
 		if ($track->getTotalFirstConnection() != "")
 		{
@@ -297,12 +292,10 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 				" AND usr_id = ".$ilDB->quote($user_id, "integer")
 				);
 		}
-//$ilLog->write("après update read_event");
+
 		// update lp status
-		include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatusWrapper.php");
 		ilLPStatusWrapper::_updateStatus($this->getId(), $user_id, $this, true);
-//$ilLog->write("après update status");		
-		// write percentage
 		
 		return $user_id;
 	}
@@ -315,7 +308,6 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 	
 	public function getLPCompleted(): array
 	{
-	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupUsersForStatus($this->getId(), 2);
 	}
 	
@@ -332,19 +324,16 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 	
 	public function getLPInProgress(): array
 	{
-	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupUsersForStatus($this->getId(), 1);
 	}
 	
 	public function getLPStatusForUser($a_user_id): int
 	{
-	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupStatus($this->getId(), $a_user_id);
 	}
 	
 	public function getPercentageForUser($a_user_id): int
 	{
-	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		return ilAtriumTrackingData::lookupPercentage($this->getId(), $a_user_id);
 	}
 	
@@ -362,14 +351,14 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 	{
 		global $ilUser;
 
-		include_once("./Services/Tracking/classes/class.ilChangeEvent.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilChangeEvent.php");
 
 		if (!ilChangeEvent::hasAccessed($this->getId(), $ilUser->getId()))
 		{
 			ilChangeEvent::_recordReadEvent($this->getType(),
 				$this->getRefId(), $this->getId(), $ilUser->getId());		
 			
-			include_once("./Services/Tracking/classes/class.ilLPStatus.php");
+			include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php");
 			ilLPStatus::setInProgressIfNotAttempted($this->getId(), $ilUser->getId());
 		}
 	}
@@ -383,11 +372,10 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 	function exportUserDetailsExcel($a_user_id)
 	{
 		global $lng, $ilDB, $lng, $ilLog;
-//$ilLog->write("dans exportUserDetailExcel");
-		include_once("./Services/Calendar/classes/class.ilDatePresentation.php");
+
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Calendar/classes/class.ilDatePresentation.php");
 		ilDatePresentation::setUseRelativeDates(false);
 		
-	//	$this->plugin->includeClass("class.ilAtriumNames.php");
 		$lng->loadLanguageModule("trac");
 		
 		if (ilObject::_lookupType($a_user_id) != "usr")
@@ -397,13 +385,13 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 		
 		$user = new ilObjUser($a_user_id);
 		
-		include_once "./Services/Excel/classes/class.ilExcel.php";
+		include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Excel/classes/class.ilExcel.php";
 		$excelFile = new ilExcel();
-		$excelFile->addSheet("Feiulle de note individuelle",true);
+		$excelFile->addSheet("Feuille de note individuelle",true);
 
 		// get tracking data
-		include_once("./Services/Tracking/classes/class.ilTrQuery.php");		
-		include_once "Services/Tracking/classes/class.ilLPStatusFactory.php";
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilTrQuery.php");		
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatusFactory.php");
 		$lp_data = ilTrQuery::getObjectsStatusForUser($a_user_id, array($this->getId() => array($this->getRefId())));
 		$lp_data = $lp_data[0];
 		$set = $ilDB->query("SELECT * FROM read_event ".
@@ -411,7 +399,6 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 			" AND usr_id = ".$ilDB->quote($a_user_id, "integer")
 			);
 		$re_data = $ilDB->fetchAssoc($set);
-	//	$this->plugin->includeClass("class.ilAtriumTrackingData.php");
 		$tr_data = new ilAtriumTrackingData($this->getId(), $a_user_id);
 		
 		// header row
@@ -439,7 +426,6 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 		$row++;
 		$excelFile->setCell($row,0,$this->plugin->txt("first_access"),null);
 		$excelFile->setBold($excelFile->getCoordByColumnAndRow(0, $row));
-		//$excelFile->setCell($row,1,ilDatePresentation::formatDate(new ilDate(substr($re_data["first_access"], 0, 10))),null);
 		$excelFile->setCell($row,1,substr($re_data["first_access"], 0, 10),null);
 		$row++;
 		$excelFile->setCell($row,0,$lng->txt("last_access"),null);
@@ -453,7 +439,7 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 		$excelFile->setCell($row,0,$this->plugin->txt("general_average"),null);
 		$excelFile->setBold($excelFile->getCoordByColumnAndRow(0, $row));
 		$excelFile->setCell($row,1,ilAtriumTrackingData::lookupAveragePoints($this->getId(), $a_user_id),null);
-//$ilLog->write("avant foreach");		
+
 		foreach ($tr_data->getDisciplineData() as $disc)
 		{
 			$row++;
@@ -504,11 +490,7 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 			{
 				$row++;
 				$excelFile->setCell($row,0,ilAtriumNames::lookup($k, $this->getId()),null);
-			/*	if ($m["PRE"][1] != 99)
-				{
-					$excelFile->setCell($row,1,$m["PRE"][2],null);
-					$excelFile->setCell($row,2,$m["PRE"][1],null);
-				}*/
+			
 				if ($m["FINAL"][1] != 99)
 				{
 					$excelFile->setCell($row,3,$m["FINAL"][2],null);
@@ -542,6 +524,5 @@ ilChangeEvent::_recordReadEvent($this->getType(),
 		}
 		return intval($contenthours).':'.intval($contentminutes).':'.str_pad($contentseconds, 2, 0, STR_PAD_LEFT);
 	}
-
 }
 ?>

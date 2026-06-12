@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/PluginSlot/class.ilRepositoryObjectPlugin.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Repository/PluginSlot/class.ilRepositoryObjectPlugin.php");
  
 /**
 * Atrium repository object plugin
@@ -39,7 +39,10 @@ class ilAtriumPlugin extends ilRepositoryObjectPlugin
 			$ilDB->dropTable('rep_robj_xatr_tr_test');
 		}
 	}
+	
+	public static function _getIcon(string $a_type): string{
+	return './Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/templates/images/icon_'.$a_type.'.svg';
+	}
 }
-
 
 ?>

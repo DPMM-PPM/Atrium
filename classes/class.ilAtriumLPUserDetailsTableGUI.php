@@ -2,11 +2,11 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Table/classes/class.ilTable2GUI.php");
-include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
-include_once("./Services/Tracking/classes/class.ilObjUserTracking.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Table/classes/class.ilTable2GUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPTableBaseGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilObjUserTracking.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 
 /**
  * TableGUI class for atrium user lp details
@@ -75,7 +75,7 @@ $track = new ilAtriumTrackingData($this->parent_obj->getId(), $a_user->getId());
 
 //	$ilLog->write("set :".$a_set[0]." | ".$this->parent_obj->getId());
 		$this->tpl->setVariable("DISC", ilAtriumNames::lookup($a_set[0], $this->parent_obj->getId()));
-		$this->tpl->setVariable("DISC_IMG", ilUtil::getImagePath("icon_fold.svg"));
+		$this->tpl->setVariable("DISC_IMG", ilUtil::getImagePath("/standard/icon_fold.svg"));
 		if ($a_set[4][0] > 0)
 		{
 			$this->tpl->setVariable("TIME_SPENT", $this->parseValue("spent_seconds", $a_set[4][0], ""));

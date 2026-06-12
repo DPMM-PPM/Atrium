@@ -72,3 +72,12 @@ first_access#:#Training start
 sort_does_not_possible#:#Sort not possible
 invalid_key#:#Invalid key
 invalid_key_info#:#The lenght of the key must be exactly 16,20,24,28 or 32 characters. 
+xatr_no_valid_mode#:#No valid mode has been specified.
+xatr_no_key_defined#:#No key has been defined.
+no_iv_defined#:#No IV defined.
+no_nonce_defined#:#No nonce has been defined.
+invalid_padding#:#The ciphertext has an invalid padding length (%s) compared to the block size ({%s})
+invalid_cipher_lenght#:#The ciphertext length (%s) needs to be a multiple of the block size (%s)
+key_length_setting#:#Key length has already been set to %s bytes and this key is %s bytes
+no_bloks_in_stream_mode#:#Block ciphers cannot be ran in stream mode.
+iv_not_compatible#:#The IV length (%s) does not match the block size (%s)

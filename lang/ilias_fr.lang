@@ -76,3 +76,12 @@ test_status#:#Statut du test
 sort_does_not_possible#:#Le tri n'est pas possible sur cette valeur
 invalid_key#:#La clé n'est pas conforme.
 invalid_key_info#:#La clé doit comporter exactement 16,20,24,28 ou 32 caractères pour être valide.
+xatr_no_valid_mode#:#Le mode spécifié n'est pas valide.
+no_key_defined#:#Il n'y a pas de clé définie.
+no_iv_defined#:#Le vecteur d'initialisation (IV) n'est pas défini.
+no_nonce_defined#:#La variable nonce n'est pas définie.
+invalid_padding#:#Le texte chiffré a une longueur de remplissage invalide (%s) comparée à la taille des blocs ({%s})
+invalid_cipher_lenght#:#La longueur du texte chiffré (%s) doit être un multiple de la taille des blocs (%s)
+key_length_setting#:#La longueur de clé a été paramétrée à %s bytes et cette clé est de %s bytes
+no_bloks_in_stream_mode#:#Les chiffrements par blocs ne peuvent pas être exécutés en mode flux.
+iv_not_compatible#:#Le vecteur d'initialisation (%s) est incompatible avec la taille des blocs (%s).

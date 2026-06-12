@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPTableBaseGUI.php");
 
 /**
  * Learning progress table: One object, rows: users, columns: properties
@@ -77,7 +77,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		$this->setExternalSegmentation(true);
 		$this->setEnableHeader(true);
 		$this->setFormAction($ilCtrl->getFormActionByClass(get_class($this)));
-		$this->setRowTemplate("tpl.object_users_props_row.html", "Services/Tracking");
+		$this->setRowTemplate("tpl.object_users_props_row.html", "components/ILIAS/Tracking");
 		$this->setEnableTitle(true);
 		$this->setShowTemplates(true);
 		$this->setExportFormats(array(self::EXPORT_CSV, self::EXPORT_EXCEL));
@@ -110,7 +110,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 
 		$anonymized_object = false;
 		
-		include_once("./Services/User/classes/class.ilUserProfile.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/User/classes/Profile/class.ilUserProfile.php");
 		$up = new ilUserProfile();
 		$up->skipGroup("preferences");
 		$up->skipGroup("settings");
@@ -133,7 +133,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		}
 
 		// show only if extended data was activated in lp settings
-		include_once 'Services/Tracking/classes/class.ilObjUserTracking.php';
+		include_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/Tracking/classes/class.ilObjUserTracking.php';
 		$tracking = new ilObjUserTracking();
 		if($tracking->hasExtendedData(ilObjUserTracking::EXTENDED_DATA_LAST_ACCESS))
 		{
@@ -169,7 +169,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 			"default" => true);
 
 		// do not show status if learning progress is deactivated
-		include_once("./Services/Tracking/classes/class.ilLPObjSettings.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPObjSettings.php");
 		$mode = ilLPObjSettings::_lookupDbMode($this->obj_id);
 		if($mode == ilLPObjSettings::LP_MODE_DEACTIVATED && $mode == ilLPObjSettings::LP_MODE_UNDEFINED)
 		{
@@ -221,7 +221,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 			}
 
 			// additional defined user data fields
-			include_once './Services/User/classes/class.ilUserDefinedFields.php';
+			include_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/User/classes/class.ilUserDefinedFields.php';
 			$user_defined_fields = ilUserDefinedFields::_getInstance();
 			foreach($user_defined_fields->getVisibleDefinitions() as $field_id => $definition)
 			{
@@ -251,7 +251,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 //$ilLog->write("Dans getItem");
 		$this->determineOffsetAndOrder();
 		
-		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilTrQuery.php");
 		
 		$additional_fields = $this->getSelectedColumns();
 
@@ -260,7 +260,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		if($this->in_course)
 		{
 			// privacy (if course agreement is activated)
-			include_once "Services/PrivacySecurity/classes/class.ilPrivacySettings.php";
+			include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/PrivacySecurity/classes/class.ilPrivacySettings.php";
 			$privacy = ilPrivacySettings::getInstance();
 		    if($privacy->courseConfirmationRequired())
 			{
@@ -310,7 +310,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 		}
 
 		// add average
-		include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 		
 		foreach ($tr_data["set"] as $k => $v)
 		{
@@ -384,7 +384,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 					$item = $this->addFilterItemByMetaType("sel_country", ilTable2GUI::FILTER_SELECT, true, $meta["txt"]);
 
 					$options = array();
-					include_once("./Services/Utilities/classes/class.ilCountry.php");
+					include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/User/classes/Country/class.ilCountry.php");
 					foreach (ilCountry::getCountryCodes() as $c)
 					{
 						$options[$c] = $lng->txt("meta_c_".$c);
@@ -396,7 +396,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 					break;
 
 				case "status":
-					include_once "Services/Tracking/classes/class.ilLPStatus.php";
+					include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPStatus.php";
 					$item = $this->addFilterItemByMetaType("status", ilTable2GUI::FILTER_SELECT, true, $meta["txt"]);
 					$item->setOptions(array("" => $lng->txt("trac_all"),
 						1 => $lng->txt(LP_STATUS_NOT_ATTEMPTED),	 //LP_STATUS_NOT_ATTEMPTED_NUM+1
@@ -503,7 +503,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 			}
 			else
 			{
-				include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+				include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 				$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set[$c]);
 			}
 			//$worksheet->write($a_row, $cnt, $val);
@@ -533,7 +533,7 @@ class ilAtriumLPUsersTableGUI extends ilLPTableBaseGUI
 			}
 			else
 			{
-				include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+				include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 				$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set[$c]);
 			}
 			$a_csv->addColumn($val);

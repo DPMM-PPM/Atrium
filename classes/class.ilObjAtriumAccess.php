@@ -2,8 +2,8 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Repository/PluginSlot/class.ilObjectPluginAccess.php");
-include_once("./Services/Utilities/classes/class.ilUtil.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Repository/PluginSlot/class.ilObjectPluginAccess.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Utilities/classes/class.ilUtil.php");
 
 /**
  * Access/Condition checking for Atrium object

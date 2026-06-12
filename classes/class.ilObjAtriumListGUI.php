@@ -2,7 +2,7 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once "./Services/Repository/PluginSlot/class.ilObjectPluginListGUI.php";
+include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Repository/PluginSlot/class.ilObjectPluginListGUI.php";
 
 /**
  * ListGUI implementation for Atrium object plugin. This one
@@ -62,7 +62,7 @@ class ilObjAtriumListGUI extends ilObjectPluginListGUI
 	*/
 	function getProperties(): array
 	{
-	include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilObjAtriumAccess.php");
+	include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilObjAtriumAccess.php");
 	             
 		global $lng, $ilUser;
 

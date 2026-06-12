@@ -2,9 +2,9 @@
 
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once("./Services/Tracking/classes/class.ilLPTableBaseGUI.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
-include_once("./Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
+include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLPTableBaseGUI.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumNames.php");
+include_once(ILIAS_ABSOLUTE_PATH."/public/Customizing/global/plugins/Services/Repository/RepositoryObject/Atrium/classes/class.ilAtriumTrackingData.php");
 
 /**
  * Atrium matrix table
@@ -43,7 +43,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 	
 		$this->setEnableHeader(true);
 		$this->setFormAction($ilCtrl->getFormActionByClass(get_class($this)));
-		$this->setRowTemplate("tpl.user_object_matrix_row.html", "Services/Tracking");
+		$this->setRowTemplate("tpl.user_object_matrix_row.html", "components/ILIAS/Tracking");
 		$this->setDefaultOrderField("login");
 		$this->setDefaultOrderDirection("asc");
 		$this->setShowTemplates(true);
@@ -84,6 +84,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 		$this->filter["name"] = $item->getValue();
 	}
 
+
 	function getSelectableColumns(): array
 	{
 		global $ilObjDataCache,$ilLog;
@@ -112,7 +113,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 					$icon = ilObject::_getIcon("", "tiny", $type);
 					if($type == "sess")
 					{
-						include_once "Modules/Session/classes/class.ilObjSession.php";
+						include_once ILIAS_ABSOLUTE_PATH."/components/ILIAS/Session/classes/class.ilObjSession.php";
 						$sess = new ilObjSession($obj_id, false);
 						$title = $sess->getPresentationTitle();
 					}
@@ -123,7 +124,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 			{
 				foreach($this->disciplines as $k => $disc)
 				{
-					$icon = ilUtil::getImagePath("icon_fold.svg");
+					$icon = ilUtil::getImagePath("/standard/icon_fold.svg");
 					$tmp_cols[strtolower($disc)."#~#objdisc_".$k] =
 						array("txt" => ilAtriumNames::lookup($disc, $this->parent_obj->getId()), "icon"=>$icon, "default" => true);
 				}
@@ -141,46 +142,32 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 				$columns["obj_".$this->obj_id] = $parent;
 			}
 		}
-/*
-		$columns["status_changed"] = array("txt" => $this->lng->txt("trac_status_changed"),
-			"id" => "status_changed",
-			"default" => false);
-	*/	
-		include_once 'Services/Tracking/classes/class.ilObjUserTracking.php';
+
+
+		include_once ILIAS_ABSOLUTE_PATH.'/components/ILIAS/Tracking/classes/class.ilObjUserTracking.php';
 		$tracking = new ilObjUserTracking();
-		/*
-		if($tracking->hasExtendedData(ilObjUserTracking::EXTENDED_DATA_LAST_ACCESS))
-		{
-			$columns["last_access"] = array("txt" => $this->lng->txt("last_access"), 
-				"id" => "last_access",
-				"default" => false);
-		}
 		
-		if($tracking->hasExtendedData(ilObjUserTracking::EXTENDED_DATA_SPENT_SECONDS))
-		{
-			$columns["spent_seconds"] = array("txt" => $this->lng->txt("trac_spent_seconds"), 
-				"id" => "spent_seconds",
-				"default" => false);
-		}
-		*/
 		
 		return $columns;
 	}
+
 
 	function getItems()
 	{
 		global $lng, $tree, $ilLog;
 
-		// $this->determineOffsetAndOrder();
-		include_once("./Services/Tracking/classes/class.ilTrQuery.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilTrQuery.php");
 		//$ilLog->write("avant getobjectIds ".$this->obj_id." ".$this->ref_id);
 		$collection = ilTrQuery::getObjectIds($this->obj_id, $this->ref_id, true);
+		
 		if($collection["object_ids"])
 		{
 			// we need these for the timing warnings
 			$this->ref_ids = $collection["ref_ids"];
-			foreach($collection["object_ids"] as $k => $val){
-			//$ilLog->write("dans foreach ".$k." ".$val);}
+			foreach($collection["object_ids"] as $k => $val)
+			{
+				//$ilLog->write("dans foreach ".$k." ".$val);
+			}
 			$data = ilTrQuery::getUserObjectMatrix($this->ref_id, $collection["object_ids"], $this->filter["name"],NULL,array(),NULL);
 			if($collection["objectives_parent_id"] && $data["users"])
 			{
@@ -219,7 +206,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 			$this->setMaxCount($data["cnt"]);
 			$this->setData($data["set"]);
 			}
-//var_dump($this->sco_ids);
+
 			return $collection["object_ids"];
 		}
 		return false;
@@ -261,7 +248,7 @@ class ilAtriumLPMatrixTableGUI extends ilLPTableBaseGUI
 							$data["percentage"] = NULL;
 						}
 					}
-$data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l'objet à coté du statut général
+					$data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l'objet à coté du statut général
 					if($data['status'] != ilLpStatus::LP_STATUS_COMPLETED_NUM) 
 					{
 						$timing = $this->showTimingsWarning($this->ref_ids[$obj_id], $a_set["usr_id"]);
@@ -310,7 +297,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillHeaderExcel(ilExcel $a_excel, &$a_row): void // VINCENT SAYAH
+	function fillHeaderExcel(ilExcel $a_excel, &$a_row): void // VINCENT SAYAH
 	{
 		global $ilObjDataCache;
 		
@@ -326,7 +313,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set): void // VINCENT SAYAH
+	function fillRowExcel(ilExcel $a_excel, &$a_row, $a_set): void // VINCENT SAYAH
 	{
 		//$worksheet->write($a_row, 0, $a_set["login"]);
 		$a_excel->setCell($a_row, 0, $a_set["login"]); // VINCENT SAYAH
@@ -334,7 +321,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		$cnt = 1;
 		foreach ($this->getSelectedColumns() as $c)
 		{
-			include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+			include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 			switch($c)
 			{
 				case "last_access":
@@ -366,7 +353,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		}
 	}
 
-	protected function fillHeaderCSV($a_csv): void
+	function fillHeaderCSV($a_csv): void
 	{
 		global $ilObjDataCache;
 		
@@ -381,7 +368,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 		$a_csv->addRow();
 	}
 
-	protected function fillRowCSV($a_csv, $a_set): void
+	function fillRowCSV($a_csv, $a_set): void
 	{
 	global $ilLog;
 /*	foreach ($a_set as $k => $v){
@@ -389,7 +376,7 @@ $data["percentage"] = NULL;  // suppression de l'affichage du pourcentage pour l
 	}*/
 		$a_csv->addColumn($a_set["login"]);
 
-		include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+		include_once(ILIAS_ABSOLUTE_PATH."/components/ILIAS/Tracking/classes/class.ilLearningProgressBaseGUI.php");
 		
 		foreach ($this->getSelectedColumns() as $c)
 		{
